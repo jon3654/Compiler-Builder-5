@@ -84,7 +84,7 @@ int main(void)
         tempmod=all[pc].m;
         // Store a temporary level
         templev=all[pc].l;
-        execute(all[pc].op, all[pc].l, all[pc].m, &str, &lcheck, &mcheck, &outcheck, &out, &hlt, &pc, &bp, &sp);
+        execute(all[pc].op, all[pc].l, all[pc].m, str, &lcheck, &mcheck, &outcheck, &out, &hlt, &pc, &bp, &sp);
         // Check if the modifier should be displayed in the output
         if(mcheck==0)
         {
@@ -150,67 +150,67 @@ void print_AC(int opcode, int level, int modifier, int line)
         else if(modifier==1)
         {
             // NEG
-            printf("%3d\tNEG\n");
+            printf("%3d\tNEG\n", line);
         }
         else if(modifier==2)
         {
             // ADD
-            printf("%3d\tADD\n");
+            printf("%3d\tADD\n", line);
         }
         else if(modifier==3)
         {
             // SUB
-            printf("%3d\tSUB\n");
+            printf("%3d\tSUB\n", line);
         }
         else if(modifier==4)
         {
             // MUL
-            printf("%3d\tMUL\n");
+            printf("%3d\tMUL\n", line);
         }
         else if(modifier==5)
         {
             // DIV
-            printf("%3d\tDIV\n");
+            printf("%3d\tDIV\n", line);
         }
         else if(modifier==6)
         {
             // ODD
-            printf("%3d\tODD\n");
+            printf("%3d\tODD\n", line);
         }
         else if(modifier==7)
         {
             // MOD
-            printf("%3d\tMOD\n");
+            printf("%3d\tMOD\n", line);
         }
         else if(modifier==8)
         {
             // EQL
-            printf("%3d\tEQL\n");
+            printf("%3d\tEQL\n", line);
         }
         else if(modifier==9)
         {
             // NEQ
-            printf("%3d\tNEQ\n");
+            printf("%3d\tNEQ\n", line);
         }
         else if(modifier==10)
         {
             // LSS
-            printf("%3d\tLSS\n");
+            printf("%3d\tLSS\n", line);
         }
         else if(modifier==11)
         {
             // LEQ
-            printf("%3d\tLEQ\n");
+            printf("%3d\tLEQ\n", line);
         }
         else if(modifier==12)
         {
             // GTR
-            printf("%3d\tGTR\n");
+            printf("%3d\tGTR\n", line);
         }
         else if(modifier==13)
         {
             // GEQ
-            printf("%3d\tGEQ\n");
+            printf("%3d\tGEQ\n", line);
         }
     }
     if(opcode==3)
@@ -241,11 +241,11 @@ void print_AC(int opcode, int level, int modifier, int line)
     {
         if(modifier==0)
         {
-            printf("%3d\tINP\t\t%d\n", line);
+            printf("%3d\tINP\n", line);
         }
         else if(modifier==1)
         {
-            printf("%3d\tOUT\t\t%d\n", line);
+            printf("%3d\tOUT\n", line);
         }
         else if(modifier==2)
         {
@@ -430,8 +430,8 @@ void execute(int opcode, int level, int modifier, char *str, int *lcheck, int *m
         if(modifier==0)
         {
             // A value will be printed
-            outcheck==1;
-            out=stack[*sp];
+            *outcheck==1;
+            *out=stack[*sp];
             *sp=*sp-1;
             strcpy(str, "OUT");
         }
