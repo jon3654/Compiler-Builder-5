@@ -1,5 +1,9 @@
-// Team name:
-// Names
+// Team name: Compiler Builder 5
+// Jonathan Brownlee
+// Jeremy Hofmann
+// Christian Acosta
+// Cody Boyer
+// Devin Barron
 
 #include <stdio.h>
 #include <string.h>
@@ -27,7 +31,7 @@ int base(int level, int b);
 int main(void)
 {
     // Declare variables
-    int i, hlt=0, check=1, counter=0, sp=0, bp=1, pc=0, ir=0, lcheck=0, outcheck=0, out, temp, tempmod, templev;
+    int i, hlt=0, check=1, counter=0, sp=0, bp=1, pc=0, ir=0, lcheck, outcheck=0, out, temp, tempmod, templev;
     char str[3];
     stack[1]=0;
     stack[2]=0;
@@ -68,6 +72,7 @@ int main(void)
     printf("\t\t\t\t0\t1\t0\n");
     while(hlt==0)
     {
+        lcheck=0;
         outcheck=0;
         temp=pc;
         tempmod=all[pc].m;
@@ -99,7 +104,6 @@ int main(void)
                 printf("%d\n", out);
             }
         }
-        getchar();
     }
 
     return 0;
