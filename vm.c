@@ -25,13 +25,13 @@ typedef struct instr {
 
 // Function prototypes
 void print_AC(int opcode, int level, int modifier, int line);
-void execute(int opcode, int level, int modifier, char *str, int *lcheck, int *outcheck, int *out, int *hlt, int *pc, int *bp, int *sp);
+void execute(int opcode, int level, int modifier, char *str, int *lcheck, int *mcheck, int *outcheck, int *out, int *hlt, int *pc, int *bp, int *sp);
 int base(int level, int b);
 
 int main(void)
 {
     // Declare variables
-    int i, hlt=0, check=1, counter=0, sp=0, bp=1, pc=0, ir=0, lcheck, outcheck=0, out, temp, tempmod, templev;
+    int i, hlt=0, check=1, counter=0, sp=0, bp=1, pc=0, ir=0, lcheck, mcheck, outcheck=0, out, temp, tempmod, templev;
     char str[3];
     stack[1]=0;
     stack[2]=0;
@@ -72,13 +72,35 @@ int main(void)
     printf("\t\t\t\t0\t1\t0\n");
     while(hlt==0)
     {
+        // Reset the lcheck
         lcheck=0;
+        // Reset the mcheck
+        mcheck=1;
+        // Reset the outcheck
         outcheck=0;
+        // Store a temporary value for part of the output
         temp=pc;
+        // Store a temporary modifier
         tempmod=all[pc].m;
+        // Store a temporary level
         templev=all[pc].l;
-        execute(all[pc].op, all[pc].l, all[pc].m, &str, &lcheck, &outcheck, &out, &hlt, &pc, &bp, &sp);
-        if(lcheck==0)
+        execute(all[pc].op, all[pc].l, all[pc].m, &str, &lcheck, &mcheck, &outcheck, &out, &hlt, &pc, &bp, &sp);
+        // Check if the modifier should be displayed in the output
+        if(mcheck==0)
+        {
+            printf("%3d\t%s\t\t\t%d\t%d\t%d\t", temp, str, pc, bp, sp);
+            for(i=1; i<=sp; i++)
+            {
+                printf("%d ", stack[i]);
+            }
+            printf("\n");
+            if(outcheck==1)
+            {
+                printf("%d\n", out);
+            }
+        }
+        // Check if the level should be displayed in the output
+        else if(lcheck==0)
         {
             printf("%3d\t%s\t\t%d\t%d\t%d\t%d\t", temp, str, tempmod, pc, bp, sp);
             for(i=1; i<=sp; i++)
@@ -122,6 +144,7 @@ void print_AC(int opcode, int level, int modifier, int line)
     {
         if(modifier==0)
         {
+            // RET
             printf("%3d\tRET\n", line);
         }
         else if(modifier==1)
@@ -159,6 +182,36 @@ void print_AC(int opcode, int level, int modifier, int line)
             // MOD
             printf("%3d\tMOD\n");
         }
+        else if(modifier==8)
+        {
+            // EQL
+            printf("%3d\tEQL\n");
+        }
+        else if(modifier==9)
+        {
+            // NEQ
+            printf("%3d\tNEQ\n");
+        }
+        else if(modifier==10)
+        {
+            // LSS
+            printf("%3d\tLSS\n");
+        }
+        else if(modifier==11)
+        {
+            // LEQ
+            printf("%3d\tLEQ\n");
+        }
+        else if(modifier==12)
+        {
+            // GTR
+            printf("%3d\tGTR\n");
+        }
+        else if(modifier==13)
+        {
+            // GEQ
+            printf("%3d\tGEQ\n");
+        }
     }
     if(opcode==3)
     {
@@ -188,7 +241,7 @@ void print_AC(int opcode, int level, int modifier, int line)
     {
         if(modifier==0)
         {
-            printf("%3d\tIN\t\t%d\n", line);
+            printf("%3d\tINP\t\t%d\n", line);
         }
         else if(modifier==1)
         {
@@ -201,7 +254,7 @@ void print_AC(int opcode, int level, int modifier, int line)
     }
 }
 
-void execute(int opcode, int level, int modifier, char *str, int *lcheck, int *outcheck, int *out, int *hlt, int *pc, int *bp, int *sp)
+void execute(int opcode, int level, int modifier, char *str, int *lcheck, int *mcheck, int *outcheck, int *out, int *hlt, int *pc, int *bp, int *sp)
 {
     // Increment the program counter
     *pc=*pc+1;
@@ -215,6 +268,8 @@ void execute(int opcode, int level, int modifier, char *str, int *lcheck, int *o
     // OPR
     if(opcode==2)
     {
+        // The modifier will not be shown in the output
+        *mcheck=0;
         // RET
         if(modifier==0)
         {
@@ -318,6 +373,7 @@ void execute(int opcode, int level, int modifier, char *str, int *lcheck, int *o
     {
         *sp=*sp+1;
         stack[*sp]=stack[base(level, *bp)+modifier];
+        // The level will be displayed in the output
         *lcheck=1;
         strcpy(str, "LOD");
     }
@@ -326,6 +382,7 @@ void execute(int opcode, int level, int modifier, char *str, int *lcheck, int *o
     {
         stack[base(level,*bp)+modifier]=stack[*sp];
         *sp=*sp-1;
+        // The level will be displayed in the output
         *lcheck=1;
         strcpy(str, "STO");
     }
@@ -338,6 +395,7 @@ void execute(int opcode, int level, int modifier, char *str, int *lcheck, int *o
         stack[*sp+4]=*pc;
         *bp=*sp+1;
         *pc=modifier;
+        // The level will be displayed in the output
         *lcheck=1;
         strcpy(str, "CAL");
     }
@@ -366,9 +424,12 @@ void execute(int opcode, int level, int modifier, char *str, int *lcheck, int *o
     // SIO
     if(opcode==9)
     {
+        // The modifier will not be displayed in the output
+        *mcheck=0;
         // OUT
         if(modifier==0)
         {
+            // A value will be printed
             outcheck==1;
             out=stack[*sp];
             *sp=*sp-1;
