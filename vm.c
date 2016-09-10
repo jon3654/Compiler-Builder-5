@@ -105,7 +105,13 @@ int main(void)
             printf("%3d\t%s\t\t%d\t%d\t%d\t%d\t", temp, str, tempmod, pc, bp, sp);
             for(i=1; i<=sp; i++)
             {
+	    	if(bp > 1 && i == bp)
+	        {
+		    printf("| ");
+	        }
+
                 printf("%d ", stack[i]);
+		
             }
             printf("\n");
             if(outcheck==1)
@@ -118,7 +124,12 @@ int main(void)
             printf("%3d\t%s\t%d\t%d\t%d\t%d\t%d\t", temp, str, templev, tempmod, pc, bp, sp);
             for(i=1; i<=sp; i++)
             {
-                printf("%d ", stack[i]);
+	        if(bp > 1 && i == bp)
+	        {
+		    printf("| ");
+	        }
+
+	        printf("%d ", stack[i]);
             }
             printf("\n");
             if(outcheck==1)
@@ -256,6 +267,7 @@ void print_AC(int opcode, int level, int modifier, int line)
 
 void execute(int opcode, int level, int modifier, char *str, int *lcheck, int *mcheck, int *outcheck, int *out, int *hlt, int *pc, int *bp, int *sp)
 {
+  
     // Increment the program counter
     *pc=*pc+1;
     // LIT
@@ -268,6 +280,7 @@ void execute(int opcode, int level, int modifier, char *str, int *lcheck, int *m
     // OPR
     if(opcode==2)
     {
+      
         // The modifier will not be shown in the output
         *mcheck=0;
         // RET
