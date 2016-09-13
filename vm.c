@@ -91,6 +91,11 @@ int main(void)
             printf("%3d\t%s\t\t\t%d\t%d\t%d\t", temp, str, pc, bp, sp);
             for(i=1; i<=sp; i++)
             {
+            	if(bp > 1 && i == bp)
+	        {
+		    printf("| ");
+	        }
+	        
                 printf("%d ", stack[i]);
             }
             printf("\n");
