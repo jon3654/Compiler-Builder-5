@@ -31,7 +31,7 @@ int base(int level, int b);
 int main(void)
 {
     // Declare variables
-    int i, hlt=0, check=1, counter=0, sp=0, bp=1, pc=0, ir=0, lcheck, mcheck, outcheck=0, out, temp, tempmod, templev;
+    int i, hlt=0, check=1, counter=0, sp=0, bp=1, pc=0, ir=0, lcheck, mcheck, outcheck=0, out, temp, tempmod, templev, end;
     char str[3];
     stack[1]=0;
     stack[2]=0;
@@ -49,7 +49,7 @@ int main(void)
         // Scan the current instruction
         scanf("%d %d %d", &all[counter].op, &all[counter].l, &all[counter].m);
 
-        // Check for a halt command
+        // Check for a halt instruction
         if(all[counter].op==9 && all[counter].l==0 && all[counter].m==2)
         {
             check=0;
@@ -57,6 +57,13 @@ int main(void)
 
         // Increment the counter
         counter++;
+
+        // Check to see if the end of the file has been reached
+        if(feof(stdin))
+        {
+            check=0;
+            end=counter;
+        }
     }
 
     // Print the assembler version of the code
@@ -95,7 +102,7 @@ int main(void)
 	        {
 		    printf("| ");
 	        }
-	        
+
                 printf("%d ", stack[i]);
             }
             printf("\n");
@@ -116,7 +123,7 @@ int main(void)
 	        }
 
                 printf("%d ", stack[i]);
-		
+
             }
             printf("\n");
             if(outcheck==1)
@@ -141,6 +148,10 @@ int main(void)
             {
                 printf("%d\n", out);
             }
+        }
+        if(pc==end)
+        {
+            hlt=1;
         }
     }
 
@@ -272,7 +283,7 @@ void print_AC(int opcode, int level, int modifier, int line)
 
 void execute(int opcode, int level, int modifier, char *str, int *lcheck, int *mcheck, int *outcheck, int *out, int *hlt, int *pc, int *bp, int *sp)
 {
-  
+
     // Increment the program counter
     *pc=*pc+1;
     // LIT
@@ -285,7 +296,7 @@ void execute(int opcode, int level, int modifier, char *str, int *lcheck, int *m
     // OPR
     if(opcode==2)
     {
-      
+
         // The modifier will not be shown in the output
         *mcheck=0;
         // RET
