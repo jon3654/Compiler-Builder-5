@@ -25,7 +25,7 @@ typedef struct instr {
 
 // Function prototypes
 void print_AC(int opcode, int level, int modifier, int line);
-void execute(int opcode, int level, int modifier, char *str, int *lcheck, int *mcheck, int *outcheck, int *out, int *inpcheck, int *in, int *hlt, int *pc, int *bp, int *sp, FILE *ifp);
+void execute(int opcode, int level, int modifier, char *str, int *lcheck, int *mcheck, int *outcheck, int *out, int *inpcheck, int *in, int *hlt, int *pc, int *bp, int *sp);
 int base(int level, int b);
 
 int main(int argc, char* argv[])
@@ -93,7 +93,7 @@ int main(int argc, char* argv[])
         tempmod=all[pc].m;
         // Store a temporary level
         templev=all[pc].l;
-        execute(all[pc].op, all[pc].l, all[pc].m, str, &lcheck, &mcheck, &outcheck, &out, &inpcheck, &in, &hlt, &pc, &bp, &sp, ifp);
+        execute(all[pc].op, all[pc].l, all[pc].m, str, &lcheck, &mcheck, &outcheck, &out, &inpcheck, &in, &hlt, &pc, &bp, &sp);
         // Check if the modifier should be displayed in the output
         if(!mcheck)
         {
@@ -267,7 +267,7 @@ void print_AC(int opcode, int level, int modifier, int line)
 	}
 }
 
-void execute(int opcode, int level, int modifier, char *str, int *lcheck, int *mcheck, int *outcheck, int *out, int *inpcheck, int *in, int *hlt, int *pc, int *bp, int *sp, FILE *ifp)
+void execute(int opcode, int level, int modifier, char *str, int *lcheck, int *mcheck, int *outcheck, int *out, int *inpcheck, int *in, int *hlt, int *pc, int *bp, int *sp)
 {
 
     // Increment the program counter
