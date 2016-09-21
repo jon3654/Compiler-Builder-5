@@ -25,13 +25,13 @@ typedef struct instr {
 
 // Function prototypes
 void print_AC(int opcode, int level, int modifier, int line);
-void execute(int opcode, int level, int modifier, char *str, int *lcheck, int *mcheck, int *outcheck, int *out, int *hlt, int *pc, int *bp, int *sp, FILE *ifp);
+void execute(int opcode, int level, int modifier, char *str, int *lcheck, int *mcheck, int *outcheck, int *out, int *inpcheck, int *in, int *hlt, int *pc, int *bp, int *sp, FILE *ifp);
 int base(int level, int b);
 
 int main(int argc, char* argv[])
 {
     // Declare variables
-    int i, hlt=0, check=1, counter=0, sp=0, bp=1, pc=0, ir=0, lcheck, mcheck, outcheck=0, out, temp, tempmod, templev, end;
+    int i, hlt=0, check=1, counter=0, sp=0, bp=1, pc=0, ir=0, lcheck, mcheck, outcheck=0, out, inpcheck=1, in, temp, tempmod, templev, end;
     char str[3];
     stack[1]=0;
     stack[2]=0;
@@ -74,8 +74,8 @@ int main(int argc, char* argv[])
 
     // Execute the instructions
     printf("\nExecution:\n");
-    printf("                      pc   bp   sp   stack\n");
-    printf("                       0    1    0   \n");
+    printf("                       pc   bp   sp   stack\n");
+    printf("                        0    1    0   \n");
 
     while(!hlt)
     {
@@ -85,17 +85,19 @@ int main(int argc, char* argv[])
         mcheck=1;
         // Reset the outcheck
         outcheck=0;
+        // Reset the inpcheck
+        inpcheck=0;
         // Store a temporary value for part of the output
         temp=pc;
         // Store a temporary modifier
         tempmod=all[pc].m;
         // Store a temporary level
         templev=all[pc].l;
-        execute(all[pc].op, all[pc].l, all[pc].m, str, &lcheck, &mcheck, &outcheck, &out, &hlt, &pc, &bp, &sp, ifp);
+        execute(all[pc].op, all[pc].l, all[pc].m, str, &lcheck, &mcheck, &outcheck, &out, &inpcheck, &in, &hlt, &pc, &bp, &sp, ifp);
         // Check if the modifier should be displayed in the output
         if(!mcheck)
         {
-            printf("%3d  %s              %2d   %2d   %2d   ", temp, str, pc, bp, sp);
+            printf("%3d  %s               %2d   %2d   %2d   ", temp, str, pc, bp, sp);
             for(i=1; i<=sp; i++)
 			{
             	if(bp > 1 && i == bp)
@@ -107,11 +109,13 @@ int main(int argc, char* argv[])
 
             if(outcheck==1)
                 printf("%d\n", out);
+            else if(inpcheck==1)
+                printf("read %d from input\n", in);
         }
         // Check if the level should be displayed in the output
         else if(lcheck==0)
         {
-            printf("%3d  %s        %2d    %2d   %2d   %2d   ", temp, str, tempmod, pc, bp, sp);
+            printf("%3d  %s        %3d    %2d   %2d   %2d   ", temp, str, tempmod, pc, bp, sp);
             for(i=1; i<=sp; i++)
             {
 	    		if(bp > 1 && i == bp)
@@ -127,7 +131,7 @@ int main(int argc, char* argv[])
 
         else if(lcheck==1)
         {
-            printf("%3d  %s    %d   %2d    %2d   %2d   %2d   ", temp, str, templev, tempmod, pc, bp, sp);
+            printf("%3d  %s    %d   %3d    %2d   %2d   %2d   ", temp, str, templev, tempmod, pc, bp, sp);
             for(i=1; i<=sp; i++)
             {
 	        	if(bp > 1 && i == bp)
@@ -157,7 +161,7 @@ void print_AC(int opcode, int level, int modifier, int line)
 
 	switch(opcode){
 		case 1:
-        	printf("%3d  LIT        %2d\n", line, modifier);
+        	printf("%3d  LIT       %3d\n", line, modifier);
     		break;
 
     	case 2:
@@ -249,10 +253,10 @@ void print_AC(int opcode, int level, int modifier, int line)
 
 		case 9:
 	        if(modifier==0)
-	            printf("%3d  INP\n", line);
+	            printf("%3d  OUT\n", line);
 
 	        else if(modifier==1)
-	            printf("%3d  OUT\n", line);
+	            printf("%3d  INP\n", line);
 
 	        else if(modifier==2)
 	            printf("%3d  HLT\n", line);
@@ -263,7 +267,7 @@ void print_AC(int opcode, int level, int modifier, int line)
 	}
 }
 
-void execute(int opcode, int level, int modifier, char *str, int *lcheck, int *mcheck, int *outcheck, int *out, int *hlt, int *pc, int *bp, int *sp, FILE *ifp)
+void execute(int opcode, int level, int modifier, char *str, int *lcheck, int *mcheck, int *outcheck, int *out, int *inpcheck, int *in, int *hlt, int *pc, int *bp, int *sp, FILE *ifp)
 {
 
     // Increment the program counter
@@ -420,7 +424,7 @@ void execute(int opcode, int level, int modifier, char *str, int *lcheck, int *m
 	        switch(modifier){
 		        case 0: //OUT
 		            // A value will be printed
-		            *outcheck==1;
+		            *outcheck=1;
 		            *out=stack[*sp];
 		            *sp=*sp-1;
 		            strcpy(str, "OUT");
@@ -428,7 +432,9 @@ void execute(int opcode, int level, int modifier, char *str, int *lcheck, int *m
 
 		        case 1: //INP
 		            *sp=*sp+1;
-		            fscanf(ifp,"%d", &stack[*sp]);
+		            scanf("%d", &stack[*sp]);
+		            *inpcheck=1;
+		            *in=stack[*sp];
 		            strcpy(str, "INP");
 		        	break;
 
