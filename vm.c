@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
             check=0;
 
         // Check to see if the end of the file has been reached
-        if(feof(stdin))
+        if(feof(ifp))
         {
             check=0;
             end=counter;
