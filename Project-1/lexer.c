@@ -7,8 +7,7 @@ char *keyword[] = {
 };
 /* types of reserved words */
 int keyword_type[] = {
-nul, beginsym, callsym, constsym, dosym, elsesym, endsym,
-ifsym, oddsym, procsym, readsym, thensym, varsym, whilesym, writesym
+nulsym=1, oddsym=8, beginsym=21, endsym=22, ifsym=23, thensym=24, whilesym=25, foamy=26, callsym=27, constsym=28, varsym=29, procsym=30, writesym=31, readsym=32, elsesym=33
 };
 
 void PrintLines(int input);
@@ -52,6 +51,6 @@ void PrintLines(int commentsIncluded){
 int PrintTokens(char* ident){
     switch(ident)
     {
-        case
+        case keyword[0]
     }
 }
