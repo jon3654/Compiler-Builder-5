@@ -1,5 +1,16 @@
 #include<stdio.h>
 
+/* names of reserved words */
+char *keyword[] = {
+“null”, “begin”, “call”, “const”, “do”, “else”, “end”, “if”,
+“odd”, “procedure”, “read”, “then”, “var”, “while”, “write”
+};
+/* types of reserved words */
+int keyword_type[] = {
+nul, beginsym, callsym, constsym, dosym, elsesym, endsym,
+ifsym, oddsym, procsym, readsym, thensym, varsym, whilesym, writesym
+};
+
 void PrintLines(int input);
 int PrintTokens(char* ident);
 
@@ -39,5 +50,8 @@ void PrintLines(int commentsIncluded){
 // Reads in each token and prints the values
 // Should consist of an obnoxiously large switch statement to handle the tokens
 int PrintTokens(char* ident){
-
+    switch(ident)
+    {
+        case
+    }
 }
