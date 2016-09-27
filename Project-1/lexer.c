@@ -1,10 +1,10 @@
 #include<stdio.h>
 
 void PrintLines(int input);
-int PrintTokens(char* ident);
+void PrintTokens(char* ident);
 
 int main(int argc, char* argv[]){
-	FILE *ifp = fopen(arg[1],"r");
+	FILE *ifp = fopen(argv[1],"r");
 	char temp[13];
 	int i;
 
@@ -38,6 +38,6 @@ void PrintLines(int commentsIncluded){
 
 // Reads in each token and prints the values
 // Should consist of an obnoxiously large switch statement to handle the tokens
-int PrintTokens(char* ident){
+void PrintTokens(char* ident){
 
 }
