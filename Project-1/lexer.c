@@ -264,7 +264,7 @@ void PrintTokens(char *ident, int *counter){
 
 
     // Reset the counter to 0
-    counter=0;
+    *counter=0;
     // Reset all the values of the array to null
     memset(ident, '\0', 12);
 }
