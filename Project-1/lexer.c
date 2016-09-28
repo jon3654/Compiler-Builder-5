@@ -5,8 +5,8 @@
 void PrintLines(int input);
 void PrintTokens(char *ident, int *counter);
 
-int main(){
-    FILE *ifp=fopen("input.pl0", "r");
+int main(int argc, char* argv[]){
+	FILE *ifp = fopen(argv[1],"r");
 	char temp[13], current;
 	int i, counter=0, comment, halt=0;
 
@@ -242,7 +242,7 @@ int main(){
     // Close the file from reading
     fclose(ifp);
 
-	return 0;
+    return 0;
 }
 
 
@@ -261,14 +261,10 @@ void PrintTokens(char *ident, int *counter){
     {
         return;
     }
-    else
-    {
-        printf("Size of string: %d\tString: %s\n", *counter, ident);
-    }
 
 
     // Reset the counter to 0
-    *counter=0;
+    counter=0;
     // Reset all the values of the array to null
     memset(ident, '\0', 12);
 }
