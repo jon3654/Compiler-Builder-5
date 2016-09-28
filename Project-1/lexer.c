@@ -8,23 +8,13 @@ void PrintTokens(char *ident, int *counter);
 int main(int argc, char* argv[]){
 	FILE *ifp = fopen(argv[1],"r");
 	char temp[13], current;
-	int i, counter=0, halt;
+	int i, counter=0, comment, halt=0;
 
-	//Checks for --source or --clean command arguments for printing
-	if(argv[2] != NULL){
-		for(i = 2; i < argc; i++){
-
-			if(strcmp(argv[i],"--source"))
-				PrintLines(0);
-			if(strcmp(argv[i],"--clean"))
-				PrintLines(1);
-		}
-	}
-
-    memset(temp, '\0', 12);
+	memset(temp, '\0', 12);
 
     // Scan the first character of the first temporary array
     fscanf(ifp, "%c", &current);
+	//Scans in each character and builds the temporary array before sending to PrintTokens
 	while(!feof(ifp)){
             // Check to see if the current character is a character other than a letter or number
             if(!isalpha(current) && !isdigit(current))
@@ -34,9 +24,10 @@ int main(int argc, char* argv[]){
                     case '<':
                         // Print the token for the previous string
                         PrintTokens(temp, &counter);
-
                         // Start the new array with <
                         temp[0]=current;
+                        // Increment counter
+                        counter++;
                         // Scan a new character
                         fscanf(ifp, "%c", &current);
                         // Check if the following character can be part of a token with the < symbol
@@ -44,6 +35,8 @@ int main(int argc, char* argv[]){
                         {
                             // Copy second character before sending to PrintTokens
                             temp[1]=current;
+                            // Increment counter
+                            counter++;
                             // Scan a new character
                             fscanf(ifp, "%c", &current);
                         }
@@ -53,9 +46,10 @@ int main(int argc, char* argv[]){
                     case '>':
                         // Print the token for the previous string
                         PrintTokens(temp, &counter);
-
                         // Start the new array with >
                         temp[0]=current;
+                        // Increment counter
+                        counter++;
                         // Scan a new character
                         fscanf(ifp, "%c", &current);
                         // Check if the following character can part of a token with the > symbol
@@ -63,6 +57,8 @@ int main(int argc, char* argv[]){
                         {
                             // Copy second character before sending to PrintTokens
                             temp[1]=current;
+                            // Increment counter
+                            counter++;
                             // Scan a new character
                             fscanf(ifp, "%c", &current);
                         }
@@ -72,9 +68,10 @@ int main(int argc, char* argv[]){
                     case ':':
                         // Print the token for the previous string
                         PrintTokens(temp, &counter);
-
                         // Start the new array with :
                         temp[0]=current;
+                        // Increment counter
+                        counter++;
                         // Scan a new character
                         fscanf(ifp, "%c", &current);
                         // Check if the following character can be part of a token with the : symbol
@@ -82,6 +79,8 @@ int main(int argc, char* argv[]){
                         {
                             // Copy second character before sending to PrintTokens
                             temp[1]=current;
+                            // Increment counter
+                            counter++;
                             // Scan a new character
                             fscanf(ifp, "%c", &current);
                         }
@@ -91,22 +90,35 @@ int main(int argc, char* argv[]){
                     case '/':
                         // Print the token for the previous string
                         PrintTokens(temp, &counter);
-
                         // Scan a new character
                         fscanf(ifp, "%c", &current);
                         // Check to see if a comment has been found
                         if(current=='*')
                         {
-                            halt==0;
-                            while(halt==0)
+                            // Indicate that a comment has been detected
+                            comment=1;
+                            // Find the end of the comment
+                            while(comment)
                             {
+                                // Search for the end of the comment
                                 fscanf(ifp, "%c", &current);
+                                if(feof(ifp))
+                                {
+                                    comment=0;
+                                }
                                 if(current=='*')
                                 {
+                                    // Search for the end of the comment
                                     fscanf(ifp, "%c", &current);
+                                    if(feof(ifp))
+                                    {
+                                        comment=0;
+                                    }
                                     if(current=='/')
                                     {
-                                        halt=1;
+                                        // The end of the comment has been found
+                                        comment=0;
+                                        // Scan a new character
                                         fscanf(ifp, "%c", &current);
                                     }
                                 }
@@ -114,15 +126,21 @@ int main(int argc, char* argv[]){
                         }
                         else
                         {
+                            // There is not a comment, / is sent to the array
                             temp[0]='/';
+                            // Increment the counter
+                            counter++;
+                            // Print the token for /
                             PrintTokens(temp, &counter);
                         }
+                        break;
                     case '+':
                         // Print the token for the previous string
                         PrintTokens(temp, &counter);
-
                         // Start the new array with the current character
                         temp[0]=current;
+                        // Increment the counter
+                        counter++;
                         // Scan a new character
                         fscanf(ifp, "%c", &current);
                         // Print the tokens
@@ -131,9 +149,10 @@ int main(int argc, char* argv[]){
                     case '-':
                         // Print the token for the previous string
                         PrintTokens(temp, &counter);
-
                         // Start the new array with the current character
                         temp[0]=current;
+                        // Increment the counter
+                        counter++;
                         // Scan a new character
                         fscanf(ifp, "%c", &current);
                         // Print the tokens
@@ -142,9 +161,10 @@ int main(int argc, char* argv[]){
                     case '*':
                         // Print the token for the previous string
                         PrintTokens(temp, &counter);
-
                         // Start the new array with the current character
                         temp[0]=current;
+                        // Increment the counter
+                        counter++;
                         // Scan a new character
                         fscanf(ifp, "%c", &current);
                         // Print the tokens
@@ -153,9 +173,10 @@ int main(int argc, char* argv[]){
                     case '=':
                         // Print the token for the previous string
                         PrintTokens(temp, &counter);
-
                         // Start the new array with the current character
                         temp[0]=current;
+                        // Increment the counter
+                        counter++;
                         // Scan a new character
                         fscanf(ifp, "%c", &current);
                         // Print the tokens
@@ -164,9 +185,34 @@ int main(int argc, char* argv[]){
                     case ';':
                         // Print the token for the previous string
                         PrintTokens(temp, &counter);
-
                         // Start the new array with the current character
                         temp[0]=current;
+                        // Increment the counter
+                        counter++;
+                        // Scan a new character
+                        fscanf(ifp, "%c", &current);
+                        // Print the tokens
+                        PrintTokens(temp, &counter);
+                        break;
+                    case '.':
+                        // Print the token for the previous string
+                        PrintTokens(temp, &counter);
+                        // Start the new array with the current character
+                        temp[0]=current;
+                        // Increment the counter
+                        counter++;
+                        // Scan a new character
+                        fscanf(ifp, "%c", &current);
+                        // Print the tokens
+                        PrintTokens(temp, &counter);
+                        break;
+                    case ',':
+                        // Print the token for the previous string
+                        PrintTokens(temp, &counter);
+                        // Start the new array with the current character
+                        temp[0]=current;
+                        // Increment the counter
+                        counter++;
                         // Scan a new character
                         fscanf(ifp, "%c", &current);
                         // Print the tokens
@@ -175,27 +221,28 @@ int main(int argc, char* argv[]){
                     default:
                         // Print the token for the previous string
                         PrintTokens(temp, &counter);
-                        // Ignore the space, scan a new character
+                        // Ignore the invisible character, scan a new character
                         fscanf(ifp, "%c", &current);
                         break;
                 }
             }
             else
             {
+                // Save the current letter/number to the current index of the array
                 temp[counter]=current;
-                fscanf(ifp, "%c", &current);
+                // Increment the counter
                 counter++;
+                // Scan a new character
+                fscanf(ifp, "%c", &current);
             }
 	}
-	temp[counter]=current;
+	// Print the remaining token
 	PrintTokens(temp, &counter);
 
+    // Close the file from reading
+    fclose(ifp);
 
-
-	// Close the file
-	fclose(ifp);
-
-	return 0;
+    return 0;
 }
 
 
