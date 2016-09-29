@@ -70,6 +70,8 @@ void PrintTokens(FILE *ifp)
 				    found = 1;
 			    }
 			}
+			// reinitialize found to 0
+			found = 0;
 		    }
 		    
 		    // else print slashsym
