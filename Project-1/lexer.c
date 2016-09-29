@@ -44,53 +44,84 @@ void PrintTokens(FILE *ifp)
     while(!feof(ifp)){
 
 	current = fgetc(ifp);
-	    
-        // Check to see if the current character is a character other than a letter or number or whitespace/tab/newline
-        if(!isalpha(current) && !isdigit(current) && !isspace(current))
-        {
-            switch(current)
-            {
-		// possible comment case
-	        case '/':
-		{
-		    current = fgetc(ifp);
 
-		    // if comment loops until the end of the comment
-		    if(current == '*')
-		    {			
-		        while(found == 0)
-			{
-			    current = fgetc(ifp);
-			    // possible end of comment
-			    if(current == '*')
-			    {
-				current = fgetc(ifp);
-				// if "/", end of comment found
-				if(current == '/')
-				    found = 1;
-			    }
-			}
-			// reinitialize found to 0
-			found = 0;
-		    }
-		    
-		    // else print slashsym
-		    else
-			printf("/\t%d", slashsym);
-		}
-		    
-		// possible becomessym case
-	        case ':':
+	// filters out white space from the rest of the if-statements
+	if(!isspace(current))
+	{
+	    // Check to see if the current character is a character other than a letter or number
+	    if(!isalpha(current) && !isdigit(current))
+	    {
+		switch(current)
 	        {
-		    // scan for next char
-	            current = fgetc(ifp);
+		    // possible comment case
+		    case '/':
+		    {
+			current = fgetc(ifp);
+
+			// if comment loops until the end of the comment
+			if(current == '*')
+			{			
+			    while(found == 0)
+			    {
+			        current = fgetc(ifp);
+				// possible end of comment
+				if(current == '*')
+				{
+				    current = fgetc(ifp);
+				    // if "/", end of comment found
+				    if(current == '/')
+					found = 1;
+				 }
+			     }
+			     // reinitialize found to 0
+			     found = 0;
+			}
+		    
+			// else print slashsym
+			else
+			    printf("/\t%d\n", slashsym);
+			break;
+		    }
+
+		    case '*':
+			printf("*\t%d\n", slashsym);
+			break;
+		    case '+':
+		        printf("+\t%d\n", plussym);
+			break;
+		    case '-':
+			printf("-\t%d\n", minussym);
+			break;
+		    case '(':
+			printf("(\t%d\n", lparentsym);
+			break;
+		    case ')':
+			printf(")\t%d\n", rparentsym);
+			break;
+		    case ',':
+			printf(",\t%d\n", commasym);
+			break;
+		    case '.':
+		        printf(".\t%d\n", periodsym);
+			break;
+		    case ';':
+			printf(";\t%d\n", semicolonsym);
+			break;
+		    
+		    
+		    // possible becomessym case
+		    case ':':
+		    {
+			// scan for next char
+		        current = fgetc(ifp);
 		       
-		    // check for becomessym case, print symbol and associated int if found
-		    if(current == '=')
-			printf(":=\t%d\n", becomessym);
-	        }
-            }
-        }
+			// check for becomessym case, print symbol and associated int if found
+			if(current == '=')
+			    printf(":=\t%d\n", becomessym);
+		    }
+		}
+	    }
+	}
     }
 
 }
