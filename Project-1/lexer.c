@@ -82,7 +82,7 @@ void PrintTokens(FILE *ifp)
 			    printf("/\t%d\n", slashsym);
 			break;
 		    }
-
+		    // various single char operator and special symbol cases
 		    case '*':
 			printf("*\t%d\n", slashsym);
 			break;
@@ -118,6 +118,7 @@ void PrintTokens(FILE *ifp)
 			// check for becomessym case, print symbol and associated int if found
 			if(current == '=')
 			    printf(":=\t%d\n", becomessym);
+			break;
 		    }
 		}
 	    }
