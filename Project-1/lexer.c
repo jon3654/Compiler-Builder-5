@@ -13,12 +13,9 @@ becomessym = 20, beginsym = 21, endsym = 22, ifsym = 23, thensym = 24, whilesym 
 
 int main(int argc, char* argv[]){
 	FILE *ifp = fopen(argv[1],"r");
-	//char temp[13];
 	char current;
-	int i, counter=0, comment, halt=0;
+	int i, comment, halt=0;
 	
-	//memset(temp, '\0', 12);
-
 	PrintTokens(ifp);
     // Close the file from reading
     fclose(ifp);
@@ -38,18 +35,25 @@ void PrintLines(int commentsIncluded){
 // Should consist of an obnoxiously large switch statement to handle the tokens
 void PrintTokens(FILE *ifp)
 {
+    char string[13]; // stores variable names and reserved words for strcmp
     char current; // stores fgetc returned char
     int found = 0; // used for finding end of comment
-    int not_found = 0; // used to prevent skipping over non-whitespace ex. ">4"
+    int no_scan = 0; // used to prevent skipping over non-whitespace ex. ">4"
+    int counter = 0; // keeps track of array length
+    int reserved = 0;
+
+    memset(string, '\0', 12);
     
     while(!feof(ifp)){
 
 	// prevents skipping over valid token if scanned for multiple character token during switch statement
-	if(not_found == 0)
+	if(no_scan == 0)
 	    current = fgetc(ifp);
 	else
-	    not_found = 0;
-
+	    no_scan = 0;
+	// reinitialize found to 0
+	found = 0;
+	
 	// filters out white space from the rest of the if-statements
 	if(!isspace(current))
 	{
@@ -78,15 +82,13 @@ void PrintTokens(FILE *ifp)
 					found = 1;
 				 }
 			     }
-			     // reinitialize found to 0
-			     found = 0;
 			}
 		    
 			// else print slashsym
 			else
 			{
 			    printf("/\t%d\n", slashsym);
-			    not_found = 1;
+			    no_scan = 1;
 			}
 			break;
 		    }
@@ -136,7 +138,7 @@ void PrintTokens(FILE *ifp)
 			else
 			{
 			    printf(">\t%d\n", gtrsym);
-			    not_found = 1;
+			    no_scan = 1;
 			}
 			break;
 			
@@ -146,21 +148,46 @@ void PrintTokens(FILE *ifp)
 		    {
 			// scan for next char
 		        current = fgetc(ifp);
-		       
 			// check for becomessym case, print symbol and associated int if found
 			if(current == '=')
 			    printf(":=\t%d\n", becomessym);
 			else
 			{
-			    not_found = 1;
+			    no_scan = 1;
 			}
 			break;
 		    }
 		}
 	    }
+
+	    // likely variable or reserved word case
 	    if(isalpha(current))
 	    {
-		// scans for reserved words
+		string[0] = current;
+		counter++;
+		// scans for reserved words or variables
+	        while(found == 0)
+		{
+		    current = fgetc(ifp);
+		    if(isdigit(current))
+		    {
+			reserved = 1;
+			if(!isalpha(current) || !isdigit(current))
+			{
+			    found = 1;
+			    no_scan = 1;
+		        }
+			    
+		    }
+		    else if(isspace(current))
+			found = 1;
+		    else
+		    {
+			string[counter] = current;
+			current++;
+		    }
+		}
+		memset(string, '\0', 12);
 	    }
 	}
     }
