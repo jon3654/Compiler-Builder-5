@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdlib.h>
 
 void PrintLines(int input);
 void PrintTokens(FILE *ifp);
@@ -42,6 +43,7 @@ void PrintTokens(FILE *ifp)
     int counter = 0; // keeps track of array length
     int reserved = 0;
     int i = 0;
+    int num;
 
     // memset(string, '\0', 12);
     for(i = 0; i < 12; i++)
@@ -240,6 +242,36 @@ void PrintTokens(FILE *ifp)
 			printf("procedure\t%d\n", procsym);
 	        }
 		
+		// reinitialize string & counter
+		for(i = 0; i < 12; i++)
+		    string[i] = '\0';
+		counter = 0;
+
+	    }
+	    // scans in and prints integers
+	    // should print error if alphabetical char comes right after an integer char
+	    if(isdigit(current))
+	    {
+		while(found == 0 && counter < 6)
+		{
+		    string[counter] = current;
+		    counter++;
+		    current = fgetc(ifp);
+		    if(!isdigit(current))
+		    {
+			if(isalpha(current))
+			{
+			    // error here this is just a placeholder
+			    printf("error\n");
+			}
+			else if(!isspace(counter))
+			    no_scan = 1;
+			found = 1;
+		    }			
+		}
+		num = atoi(string);
+	        printf("%d\t\%d\n", num, numbersym);
+
 		// reinitialize string & counter
 		for(i = 0; i < 12; i++)
 		    string[i] = '\0';
