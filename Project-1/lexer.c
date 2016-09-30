@@ -171,16 +171,16 @@ void PrintTokens(FILE *ifp)
 		    current = fgetc(ifp);
 		    if(isdigit(current))
 		    {
-			reserved = 1;
-			if(!isalpha(current) || !isdigit(current))
-			{
-			    found = 1;
-			    no_scan = 1;
-		        }
-			    
+			reserved = 1;   
 		    }
 		    else if(isspace(current))
 			found = 1;
+		    else if(!isalpha(current) || !isdigit(current))
+		    {
+			found = 1;
+			no_scan = 1;
+		    }
+
 		    else
 		    {
 			string[counter] = current;
