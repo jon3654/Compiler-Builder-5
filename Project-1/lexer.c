@@ -168,7 +168,7 @@ void PrintTokens(FILE *ifp)
 	    if(isalpha(current))
 	    {
 		// scans for reserved words or variables
-	        while(found == 0 && counter < 12)
+	        while(found == 0 && counter < 13)
 		{
 		    string[counter] = current;
 		    counter++;
@@ -188,10 +188,57 @@ void PrintTokens(FILE *ifp)
 		    
 		}
 		// print reserved words or variable here
-	        if(reserved == 1 || counter < 2 || counter > 8)
+	        if(reserved == 1 || counter < 2)
 		{
 		    printf("%s\t%d\n", string, identsym);
 		}
+		// test string for reserved words
+		if(reserved == 0)
+		{
+		    if(counter < 3)
+		    {
+			// test for if, do
+			if(strcmp(string,"if") == 0)
+			    printf("if\t%d", ifsym);
+			else if(strcmp(string,"do") == 0)
+			    printf("do\t%d", dosym);
+		    }
+		    else if(counter < 4)
+		    {
+			// test for var, end, call, odd
+			if(strcmp(string, "var") == 0)
+			    printf("var\t%d\n", varsym);
+			else if(strcmp(string, "end") == 0)
+			    printf("end\t%d\n", endsym);
+		    }
+		    else if(counter < 5)
+		    {
+			// test for then, else, read, call
+			if(strcmp(string, "then") == 0)
+			    printf("then\t%d\n", thensym);
+			else if(strcmp(string, "else") == 0)
+			    printf("else\t%d\n", elsesym);
+			else if(strcmp(string, "read") == 0)
+			    printf("read\t%d\n", readsym);
+			else if(strcmp(string, "call") == 0)
+			    printf("call\t%d\n", callsym);
+		    }
+		    else if(counter < 6)
+		    {
+			// test for const begin while write
+			if(strcmp(string, "const") == 0)
+			    printf("const\t%d\n", constsym);
+			else if(strcmp(string, "begin") == 0)
+			    printf("begin\t%d\n", beginsym);
+			else if(strcmp(string, "while") == 0)
+			    printf("while\t%d\n", whilesym);
+			else if(strcmp(string, "write") == 0)
+			    printf("write\t%d\n", writesym);
+		    }
+		    // test string for procedure
+		    else if(strcmp(string, "procedure") == 0 && counter > 6)
+			printf("procedure\t%d\n", procsym);
+	        }
 		
 		// reinitialize string & counter
 		for(i = 0; i < 12; i++)
