@@ -41,8 +41,11 @@ void PrintTokens(FILE *ifp)
     int no_scan = 0; // used to prevent skipping over non-whitespace ex. ">4"
     int counter = 0; // keeps track of array length
     int reserved = 0;
+    int i = 0;
 
-    memset(string, '\0', 12);
+    // memset(string, '\0', 12);
+    for(i = 0; i < 12; i++)
+        string[i] = '\0';
     
     while(!feof(ifp)){
 
@@ -165,25 +168,36 @@ void PrintTokens(FILE *ifp)
 	    if(isalpha(current))
 	    {
 		// scans for reserved words or variables
-	        while(found == 0)
+	        while(found == 0 && counter < 12)
 		{
 		    string[counter] = current;
 		    counter++;
-		    
+	            
 		    current = fgetc(ifp);
 		    if(isdigit(current))
 		    {
 			reserved = 1;   
 		    }
-		    else if(isspace(current))
+		    if(isspace(current))
 			found = 1;
-		    else if(!isalpha(current) || !isdigit(current))
+		    else if(!isalpha(current) && !isdigit(current))
 		    {
 			found = 1;
 			no_scan = 1;
-		    }		    
+		    }
+		    
 		}
-		memset(string, '\0', 12);
+		// print reserved words or variable here
+	        if(reserved == 1 || counter < 2 || counter > 8)
+		{
+		    printf("%s\t%d\n", string, identsym);
+		}
+		
+		// reinitialize string & counter
+		for(i = 0; i < 12; i++)
+		    string[i] = '\0';
+		counter = 0;
+
 	    }
 	}
     }
