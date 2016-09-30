@@ -19,17 +19,17 @@ int main(int argc, char* argv[]){
 	if(argv[2] != NULL){
 		for(i = 2; i < argc; i++){
 			if(strcmp(argv[i],"--source")==0)
-            {
-                // Print with comments
-                PrintLines(1, ifp);
-                rewind(ifp);
-            }
+        		{
+                		// Print with comments
+                		PrintLines(1, ifp);
+                		rewind(ifp);
+            		}
 			if(strcmp(argv[i],"--clean")==0)
-            {
-                // Print without comments
-                PrintLines(0, ifp);
-                rewind(ifp);
-            }
+            		{
+                		// Print without comments
+                		PrintLines(0, ifp);
+                		rewind(ifp);
+            		}
 		}
 	}
 
