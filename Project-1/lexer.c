@@ -49,6 +49,7 @@ void PrintTokens(FILE *ifp)
 	// prevents skipping over valid token if scanned for multiple character token during switch statement
 	if(no_scan == 0)
 	    current = fgetc(ifp);
+	// reinitialize no_scan to 0
 	else
 	    no_scan = 0;
 	// reinitialize found to 0
@@ -163,11 +164,12 @@ void PrintTokens(FILE *ifp)
 	    // likely variable or reserved word case
 	    if(isalpha(current))
 	    {
-		string[0] = current;
-		counter++;
 		// scans for reserved words or variables
 	        while(found == 0)
 		{
+		    string[counter] = current;
+		    counter++;
+		    
 		    current = fgetc(ifp);
 		    if(isdigit(current))
 		    {
@@ -179,13 +181,7 @@ void PrintTokens(FILE *ifp)
 		    {
 			found = 1;
 			no_scan = 1;
-		    }
-
-		    else
-		    {
-			string[counter] = current;
-			current++;
-		    }
+		    }		    
 		}
 		memset(string, '\0', 12);
 	    }
