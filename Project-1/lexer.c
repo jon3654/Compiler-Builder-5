@@ -40,10 +40,15 @@ void PrintTokens(FILE *ifp)
 {
     char current; // stores fgetc returned char
     int found = 0; // used for finding end of comment
+    int not_found = 0; // used to prevent skipping over non-whitespace ex. ">4"
     
     while(!feof(ifp)){
 
-	current = fgetc(ifp);
+	// prevents skipping over valid token if scanned for multiple character token during switch statement
+	if(not_found == 0)
+	    current = fgetc(ifp);
+	else
+	    not_found = 0;
 
 	// filters out white space from the rest of the if-statements
 	if(!isspace(current))
@@ -79,7 +84,10 @@ void PrintTokens(FILE *ifp)
 		    
 			// else print slashsym
 			else
+			{
 			    printf("/\t%d\n", slashsym);
+			    not_found = 1;
+			}
 			break;
 		    }
 		    // various single char operator and special symbol cases
@@ -107,9 +115,33 @@ void PrintTokens(FILE *ifp)
 		    case ';':
 			printf(";\t%d\n", semicolonsym);
 			break;
-		    
-		    
+		    case '=':
+			printf("=\t%d\n", eqlsym);
+			break;
+		    case '<':
+			// check next char
+			current = fgetc(ifp);
+			if(current == '=')
+			    printf("<=\t%d\n", leqsym);
+			else if(current == '>')
+			    printf("<>\t%d\n", neqsym);
+			else
+			{
+			    printf("<\t%d\n", lessym);
+			}
+			break;
+		    case '>':
+			if(current == '=')
+			    printf(">=\t%d\n", geqsym);
+			else
+			{
+			    printf(">\t%d\n", gtrsym);
+			    not_found = 1;
+			}
+			break;
+			
 		    // possible becomessym case
+		    // error here if no '=' ?
 		    case ':':
 		    {
 			// scan for next char
@@ -118,9 +150,17 @@ void PrintTokens(FILE *ifp)
 			// check for becomessym case, print symbol and associated int if found
 			if(current == '=')
 			    printf(":=\t%d\n", becomessym);
+			else
+			{
+			    not_found = 1;
+			}
 			break;
 		    }
 		}
+	    }
+	    if(isalpha(current))
+	    {
+		// scans for reserved words
 	    }
 	}
     }
