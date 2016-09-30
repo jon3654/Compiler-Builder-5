@@ -15,8 +15,8 @@ becomessym = 20, beginsym = 21, endsym = 22, ifsym = 23, thensym = 24, whilesym 
 int main(int argc, char* argv[]){
 	FILE *ifp = fopen(argv[1],"r");
 	char current;
-	int i, comment, halt=0;
-	
+	int i, counter=0, comment, halt=0;
+
 	//Checks for --source or --clean command arguments for printing
 	if(argv[2] != NULL){
 		for(i = 2; i < argc; i++){
@@ -34,14 +34,13 @@ int main(int argc, char* argv[]){
             }
 		}
 	}
-	
+
 	PrintTokens(ifp);
     // Close the file from reading
     fclose(ifp);
 
     return 0;
 }
-
 
 // Prints output if --source or --clean are given as command arguments
 //if commentsIncluded = 1, print comments. If 0, don't.
