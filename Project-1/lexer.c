@@ -8,8 +8,8 @@ void PrintTokens(FILE *ifp);
 
 typedef enum token {nulsym = 1, identsym = 2, numbersym = 3, plussym = 4, minussym = 5, multsym = 6, slashsym = 7, oddsym = 8,
 eqlsym = 9, neqsym = 10, lessym = 11, leqsym = 12,
-gtrsym = 13, geqsym = 14, lparentsym = 15, rparentsym = 16, commasym = 17, semicolonsym = 18, periodsym = 19,      
-becomessym = 20, beginsym = 21, endsym = 22, ifsym = 23, thensym = 24, whilesym = 25, dosym = 26, callsym = 27, 
+gtrsym = 13, geqsym = 14, lparentsym = 15, rparentsym = 16, commasym = 17, semicolonsym = 18, periodsym = 19,
+becomessym = 20, beginsym = 21, endsym = 22, ifsym = 23, thensym = 24, whilesym = 25, dosym = 26, callsym = 27,
 		    constsym = 28, varsym = 29, procsym = 30, writesym = 31, readsym = 32, elsesym = 33} token_type;
 
 int main(int argc, char* argv[]){
@@ -40,6 +40,7 @@ int main(int argc, char* argv[]){
 
     return 0;
 }
+
 
 // Prints output if --source or --clean are given as command arguments
 //if commentsIncluded = 1, print comments. If 0, don't.
@@ -131,7 +132,7 @@ void PrintTokens(FILE *ifp)
     // memset(string, '\0', 12);
     for(i = 0; i < 12; i++)
         string[i] = '\0';
-    
+
     while(!feof(ifp)){
 
 	// prevents skipping over valid token if scanned for multiple character token during switch statement
@@ -142,7 +143,7 @@ void PrintTokens(FILE *ifp)
 	    no_scan = 0;
 	// reinitialize found to 0
 	found = 0;
-	
+
 	// filters out white space from the rest of the if-statements
 	if(!isspace(current))
 	{
@@ -158,7 +159,7 @@ void PrintTokens(FILE *ifp)
 
 			// if comment loops until the end of the comment
 			if(current == '*')
-			{			
+			{
 			    while(found == 0)
 			    {
 			        current = fgetc(ifp);
@@ -172,7 +173,7 @@ void PrintTokens(FILE *ifp)
 				 }
 			     }
 			}
-		    
+
 			// else print slashsym
 			else
 			{
@@ -230,7 +231,7 @@ void PrintTokens(FILE *ifp)
 			    no_scan = 1;
 			}
 			break;
-			
+
 		    // possible becomessym case
 		    // error here if no '=' ?
 		    case ':':
@@ -257,11 +258,11 @@ void PrintTokens(FILE *ifp)
 		{
 		    string[counter] = current;
 		    counter++;
-	            
+
 		    current = fgetc(ifp);
 		    if(isdigit(current))
 		    {
-			reserved = 1;   
+			reserved = 1;
 		    }
 		    if(isspace(current))
 			found = 1;
@@ -270,7 +271,7 @@ void PrintTokens(FILE *ifp)
 			found = 1;
 			no_scan = 1;
 		    }
-		    
+
 		}
 		// print reserved words or variable here
 	        if(reserved == 1 || counter < 2 || counter > 11)
@@ -327,7 +328,7 @@ void PrintTokens(FILE *ifp)
 		    else
 			printf("%s\t%d\n", string, identsym);
 	        }
-		
+
 		// reinitialize string & counter
 		for(i = 0; i < 12; i++)
 		    string[i] = '\0';
@@ -354,7 +355,7 @@ void PrintTokens(FILE *ifp)
 			else if(!isspace(counter))
 			    no_scan = 1;
 			found = 1;
-		    }			
+		    }
 		}
 		num = atoi(string);
 	        printf("%d\t%d\n", num, numbersym);
