@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdlib.h>
 
 void PrintLines(int commentsIncluded, FILE *ifp);
 void PrintTokens(FILE *ifp);
@@ -131,7 +132,7 @@ void PrintTokens(FILE *ifp)
     // memset(string, '\0', 12);
     for(i = 0; i < 12; i++)
         string[i] = '\0';
-    
+
     while(!feof(ifp)){
 
 	// prevents skipping over valid token if scanned for multiple character token during switch statement
@@ -142,7 +143,7 @@ void PrintTokens(FILE *ifp)
 	    no_scan = 0;
 	// reinitialize found to 0
 	found = 0;
-	
+
 	// filters out white space from the rest of the if-statements
 	if(!isspace(current))
 	{
@@ -158,7 +159,7 @@ void PrintTokens(FILE *ifp)
 
 			// if comment loops until the end of the comment
 			if(current == '*')
-			{			
+			{
 			    while(found == 0)
 			    {
 			        current = fgetc(ifp);
@@ -172,7 +173,7 @@ void PrintTokens(FILE *ifp)
 				 }
 			     }
 			}
-		    
+
 			// else print slashsym
 			else
 			{
@@ -230,7 +231,7 @@ void PrintTokens(FILE *ifp)
 			    no_scan = 1;
 			}
 			break;
-			
+
 		    // possible becomessym case
 		    // error here if no '=' ?
 		    case ':':
@@ -257,11 +258,11 @@ void PrintTokens(FILE *ifp)
 		{
 		    string[counter] = current;
 		    counter++;
-	            
+
 		    current = fgetc(ifp);
 		    if(isdigit(current))
 		    {
-			reserved = 1;   
+			reserved = 1;
 		    }
 		    if(isspace(current))
 			found = 1;
@@ -270,10 +271,10 @@ void PrintTokens(FILE *ifp)
 			found = 1;
 			no_scan = 1;
 		    }
-		    
+
 		}
 		// print reserved words or variable here
-	        if(reserved == 1 || counter < 2)
+	        if(reserved == 1 || counter < 2 || counter > 11)
 		{
 		    printf("%s\t%d\n", string, identsym);
 		}
@@ -323,12 +324,16 @@ void PrintTokens(FILE *ifp)
 		    // test string for procedure
 		    else if(strcmp(string, "procedure") == 0 && counter > 6)
 			printf("procedure\t%d\n", procsym);
+		    // else it's a reserved word (or should throw an error if too long)
+		    else
+			printf("%s\t%d\n", string, identsym);
 	        }
-		
+
 		// reinitialize string & counter
 		for(i = 0; i < 12; i++)
 		    string[i] = '\0';
 		counter = 0;
+		reserved = 0;
 
 	    }
 	    // scans in and prints integers
@@ -350,7 +355,7 @@ void PrintTokens(FILE *ifp)
 			else if(!isspace(counter))
 			    no_scan = 1;
 			found = 1;
-		    }			
+		    }
 		}
 		num = atoi(string);
 	        printf("%d\t%d\n", num, numbersym);
@@ -363,6 +368,4 @@ void PrintTokens(FILE *ifp)
 	    }
 	}
     }
-
 }
-
