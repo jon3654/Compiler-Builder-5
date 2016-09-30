@@ -270,7 +270,7 @@ void PrintTokens(FILE *ifp)
 		    }			
 		}
 		num = atoi(string);
-	        printf("%d\t\%d\n", num, numbersym);
+	        printf("%d\t%d\n", num, numbersym);
 
 		// reinitialize string & counter
 		for(i = 0; i < 12; i++)
