@@ -7,37 +7,37 @@ void PrintLines(int commentsIncluded, FILE *ifp);
 void PrintTokens(FILE *ifp);
 
 typedef enum token {nulsym = 1, identsym = 2, numbersym = 3, plussym = 4, minussym = 5, multsym = 6, slashsym = 7, oddsym = 8,
-eqlsym = 9, neqsym = 10, lessym = 11, leqsym = 12,
-gtrsym = 13, geqsym = 14, lparentsym = 15, rparentsym = 16, commasym = 17, semicolonsym = 18, periodsym = 19,
-becomessym = 20, beginsym = 21, endsym = 22, ifsym = 23, thensym = 24, whilesym = 25, dosym = 26, callsym = 27,
-		    constsym = 28, varsym = 29, procsym = 30, writesym = 31, readsym = 32, elsesym = 33} token_type;
+    eqlsym = 9, neqsym = 10, lessym = 11, leqsym = 12,
+    gtrsym = 13, geqsym = 14, lparentsym = 15, rparentsym = 16, commasym = 17, semicolonsym = 18, periodsym = 19,
+    becomessym = 20, beginsym = 21, endsym = 22, ifsym = 23, thensym = 24, whilesym = 25, dosym = 26, callsym = 27,
+    constsym = 28, varsym = 29, procsym = 30, writesym = 31, readsym = 32, elsesym = 33} token_type;
 
 int main(int argc, char* argv[]){
-	FILE *ifp = fopen(argv[1],"r");
-	int i;
-
-	//Checks for --source or --clean command arguments for printing
-	if(argv[2] != NULL){
-		for(i = 2; i < argc; i++){
-			if(strcmp(argv[i],"--source")==0)
-        		{
-                		// Print with comments
-                		PrintLines(1, ifp);
-                		rewind(ifp);
-            		}
-			if(strcmp(argv[i],"--clean")==0)
-            		{
-                		// Print without comments
-                		PrintLines(0, ifp);
-                		rewind(ifp);
-            		}
-		}
-	}
-
-	PrintTokens(ifp);
+    FILE *ifp = fopen(argv[1],"r");
+    int i;
+    
+    //Checks for --source or --clean command arguments for printing
+    if(argv[2] != NULL){
+        for(i = 2; i < argc; i++){
+            if(strcmp(argv[i],"--source")==0)
+            {
+                // Print with comments
+                PrintLines(1, ifp);
+                rewind(ifp);
+            }
+            if(strcmp(argv[i],"--clean")==0)
+            {
+                // Print without comments
+                PrintLines(0, ifp);
+                rewind(ifp);
+            }
+        }
+    }
+    
+    PrintTokens(ifp);
     // Close the file from reading
     fclose(ifp);
-
+    
     return 0;
 }
 
@@ -48,7 +48,7 @@ void PrintLines(int commentsIncluded, FILE *ifp){
     // Declare variables
     char current;
     int halt;
-
+    
     // Header for printing without comments
     if(commentsIncluded==0)
     {
@@ -61,7 +61,7 @@ void PrintLines(int commentsIncluded, FILE *ifp){
         printf("\nsource code:\n");
         printf("------------\n");
     }
-
+    
     // Scan new characters until the end of the file
     while(fscanf(ifp, "%c", &current)!=EOF)
     {
@@ -128,7 +128,7 @@ void PrintTokens(FILE *ifp)
     int reserved = 0;
     int i = 0;
     int num;
-
+    
     // memset(string, '\0', 12);
     for(i = 0; i < 12; i++)
         string[i] = '\0';
@@ -253,88 +253,96 @@ void PrintTokens(FILE *ifp)
 	    // likely variable or reserved word case
 	    if(isalpha(current))
 	    {
-		// scans for reserved words or variables
+            // scans for reserved words or variables
 	        while(found == 0 && counter < 13)
-		{
-		    string[counter] = current;
-		    counter++;
+            {
+                string[counter] = current;
+                counter++;
 
-		    current = fgetc(ifp);
-		    if(isdigit(current))
-		    {
-			reserved = 1;
-		    }
-		    if(isspace(current))
-			found = 1;
-		    else if(!isalpha(current) && !isdigit(current))
-		    {
-			found = 1;
-			no_scan = 1;
-		    }
+                current = fgetc(ifp);
+                if(isdigit(current))
+                {
+                    reserved = 1;
+                }
+                if(isspace(current))
+                    found = 1;
+                else if(!isalpha(current) && !isdigit(current))
+                {
+                    found = 1;
+                    no_scan = 1;
+                }
+            }
+            // print reserved words or variable here
+	        if(reserved == 1 || counter < 2 || counter > 9)
+            {
+                printf("%s\t%d\n", string, identsym);
+            }
+            // test string for reserved words
+            else if(reserved == 0)
+            {
+                if(counter < 3)
+                {
+                    // test for if, do
+                    if(strcmp(string,"if") == 0)
+                        printf("if\t%d", ifsym);
+                    else if(strcmp(string,"do") == 0)
+                        printf("do\t%d", dosym);
+                    else
+                        printf("%s\t%d\n", string, identsym);
+                }
+                else if(counter < 4)
+                {
+                    // test for var, end, call, odd
+                    if(strcmp(string, "var") == 0)
+                        printf("var\t%d\n", varsym);
+                    else if(strcmp(string, "end") == 0)
+                        printf("end\t%d\n", endsym);
+                    else
+                        printf("%s\t%d\n", string, identsym);
+                }
+                else if(counter < 5)
+                {
+                    // test for then, else, read, call
+                    if(strcmp(string, "then") == 0)
+                        printf("then\t%d\n", thensym);
+                    else if(strcmp(string, "else") == 0)
+                        printf("else\t%d\n", elsesym);
+                    else if(strcmp(string, "read") == 0)
+                        printf("read\t%d\n", readsym);
+                    else if(strcmp(string, "call") == 0)
+                        printf("call\t%d\n", callsym);
+                    else
+                        printf("%s\t%d\n", string, identsym);
+                }
+                else if(counter < 6)
+                {
+                // test for const begin while write
+                    if(strcmp(string, "const") == 0)
+                        printf("const\t%d\n", constsym);
+                    else if(strcmp(string, "begin") == 0)
+                        printf("begin\t%d\n", beginsym);
+                    else if(strcmp(string, "while") == 0)
+                        printf("while\t%d\n", whilesym);
+                    else if(strcmp(string, "write") == 0)
+                        printf("write\t%d\n", writesym);
+                    else
+                        printf("%s\t%d\n", string, identsym);
+                }
+                // test string for procedure
+                else if(strcmp(string, "procedure") == 0)
+                    printf("procedure\t%d\n", procsym);
+                // else it's a reserved word (or should throw an error if too long)
+                else
+                    printf("%s\t%d\n", string, identsym);
+            }
+            else
+                printf("%s\t%d\n", string, identsym);
 
-		}
-		// print reserved words or variable here
-	        if(reserved == 1 || counter < 2 || counter > 11)
-		{
-		    printf("%s\t%d\n", string, identsym);
-		}
-		// test string for reserved words
-		if(reserved == 0)
-		{
-		    if(counter < 3)
-		    {
-			// test for if, do
-			if(strcmp(string,"if") == 0)
-			    printf("if\t%d", ifsym);
-			else if(strcmp(string,"do") == 0)
-			    printf("do\t%d", dosym);
-		    }
-		    else if(counter < 4)
-		    {
-			// test for var, end, call, odd
-			if(strcmp(string, "var") == 0)
-			    printf("var\t%d\n", varsym);
-			else if(strcmp(string, "end") == 0)
-			    printf("end\t%d\n", endsym);
-		    }
-		    else if(counter < 5)
-		    {
-			// test for then, else, read, call
-			if(strcmp(string, "then") == 0)
-			    printf("then\t%d\n", thensym);
-			else if(strcmp(string, "else") == 0)
-			    printf("else\t%d\n", elsesym);
-			else if(strcmp(string, "read") == 0)
-			    printf("read\t%d\n", readsym);
-			else if(strcmp(string, "call") == 0)
-			    printf("call\t%d\n", callsym);
-		    }
-		    else if(counter < 6)
-		    {
-			// test for const begin while write
-			if(strcmp(string, "const") == 0)
-			    printf("const\t%d\n", constsym);
-			else if(strcmp(string, "begin") == 0)
-			    printf("begin\t%d\n", beginsym);
-			else if(strcmp(string, "while") == 0)
-			    printf("while\t%d\n", whilesym);
-			else if(strcmp(string, "write") == 0)
-			    printf("write\t%d\n", writesym);
-		    }
-		    // test string for procedure
-		    else if(strcmp(string, "procedure") == 0 && counter > 6)
-			printf("procedure\t%d\n", procsym);
-		    // else it's a reserved word (or should throw an error if too long)
-		    else
-			printf("%s\t%d\n", string, identsym);
-	        }
-
-		// reinitialize string & counter
-		for(i = 0; i < 12; i++)
-		    string[i] = '\0';
-		counter = 0;
-		reserved = 0;
-
+            // reinitialize string & counter
+            for(i = 0; i < 12; i++)
+                string[i] = '\0';
+            counter = 0;
+            reserved = 0;
 	    }
 	    // scans in and prints integers
 	    // should print error if alphabetical char comes right after an integer char
