@@ -129,6 +129,7 @@ void PrintTokens(FILE *ifp)
     int i = 0;
     int num;
     
+    
     // memset(string, '\0', 12);
     for(i = 0; i < 12; i++)
         string[i] = '\0';
@@ -154,99 +155,97 @@ void PrintTokens(FILE *ifp)
 	        {
 		    // possible comment case
 		    case '/':
-		    {
-			current = fgetc(ifp);
-
-			// if comment loops until the end of the comment
-			if(current == '*')
-			{
-			    while(found == 0)
-			    {
-			        current = fgetc(ifp);
-				// possible end of comment
+				current = fgetc(ifp);
+	
+				// if comment loops until the end of the comment
 				if(current == '*')
 				{
-				    current = fgetc(ifp);
-				    // if "/", end of comment found
-				    if(current == '/')
-					found = 1;
-				 }
-			     }
-			}
-
-			// else print slashsym
-			else
-			{
-			    printf("/\t%d\n", slashsym);
-			    no_scan = 1;
-			}
-			break;
-		    }
+				    while(found == 0)
+				    {
+				        current = fgetc(ifp);
+						// possible end of comment
+						if(current == '*')
+						{
+					    	current = fgetc(ifp);
+					    	// if "/", end of comment found
+					    	if(current == '/')
+							found = 1;
+					 	}
+				     }
+				}
+	
+				// else print slashsym
+				else
+				{
+				    printf("/\t%d\n", slashsym);
+				    no_scan = 1;
+				}
+				break;
+				
 		    // various single char operator and special symbol cases
 		    case '*':
-			printf("*\t%d\n", slashsym);
-			break;
+				printf("*\t%d\n", slashsym);
+				break;
 		    case '+':
 		        printf("+\t%d\n", plussym);
-			break;
+				break;
 		    case '-':
-			printf("-\t%d\n", minussym);
-			break;
+				printf("-\t%d\n", minussym);
+				break;
 		    case '(':
-			printf("(\t%d\n", lparentsym);
-			break;
+				printf("(\t%d\n", lparentsym);
+				break;
 		    case ')':
-			printf(")\t%d\n", rparentsym);
-			break;
+				printf(")\t%d\n", rparentsym);
+				break;
 		    case ',':
-			printf(",\t%d\n", commasym);
-			break;
+				printf(",\t%d\n", commasym);
+				break;
 		    case '.':
 		        printf(".\t%d\n", periodsym);
-			break;
+				break;
 		    case ';':
-			printf(";\t%d\n", semicolonsym);
-			break;
+				printf(";\t%d\n", semicolonsym);
+				break;
 		    case '=':
-			printf("=\t%d\n", eqlsym);
-			break;
+				printf("=\t%d\n", eqlsym);
+				break;
 		    case '<':
-			// check next char
-			current = fgetc(ifp);
-			if(current == '=')
-			    printf("<=\t%d\n", leqsym);
-			else if(current == '>')
-			    printf("<>\t%d\n", neqsym);
-			else
-			{
-			    printf("<\t%d\n", lessym);
-			}
-			break;
+				// check next char
+				current = fgetc(ifp);
+				if(current == '=')
+			    	printf("<=\t%d\n", leqsym);
+				else if(current == '>')
+			    	printf("<>\t%d\n", neqsym);
+				else
+				{
+			    	printf("<\t%d\n", lessym);
+				}
+				break;
 		    case '>':
-			if(current == '=')
-			    printf(">=\t%d\n", geqsym);
-			else
-			{
-			    printf(">\t%d\n", gtrsym);
-			    no_scan = 1;
-			}
-			break;
+				if(current == '=')
+				    printf(">=\t%d\n", geqsym);
+				else
+				{
+				    printf(">\t%d\n", gtrsym);
+			    	no_scan = 1;
+				}	
+				break;
 
 		    // possible becomessym case
 		    // error here if no '=' ?
 		    case ':':
-		    {
-			// scan for next char
+				// scan for next char
 		        current = fgetc(ifp);
-			// check for becomessym case, print symbol and associated int if found
-			if(current == '=')
-			    printf(":=\t%d\n", becomessym);
-			else
-			{
-			    no_scan = 1;
-			}
-			break;
-		    }
+				// check for becomessym case, print symbol and associated int if found
+				if(current == '=')
+				    printf(":=\t%d\n", becomessym);
+				else
+			    	no_scan = 1;
+				break;
+			default:
+				printf("\nERR: Unidentified token detected\n");
+				return;		    
 		}
 	    }
 
@@ -258,25 +257,29 @@ void PrintTokens(FILE *ifp)
             {
                 string[counter] = current;
                 counter++;
-
                 current = fgetc(ifp);
+
                 if(isdigit(current))
-                {
                     reserved = 1;
-                }
+
                 if(isspace(current))
                     found = 1;
+
                 else if(!isalpha(current) && !isdigit(current))
                 {
+                	// Weren't these just for end-of-comment checking?
                     found = 1;
                     no_scan = 1;
+                    
+                    // If a symbol is in an alphanumeric string, then it is an invalid token
+                    printf("\nERR: Unidentified Token %s",string);
+                    return;
                 }
             }
+            
             // print reserved words or variable here
 	        if(reserved == 1 || counter < 2 || counter > 9)
-            {
                 printf("%s\t%d\n", string, identsym);
-            }
             // test string for reserved words
             else if(reserved == 0)
             {
@@ -285,8 +288,10 @@ void PrintTokens(FILE *ifp)
                     // test for if, do
                     if(strcmp(string,"if") == 0)
                         printf("if\t%d", ifsym);
+                        
                     else if(strcmp(string,"do") == 0)
                         printf("do\t%d", dosym);
+                        
                     else
                         printf("%s\t%d\n", string, identsym);
                 }
@@ -295,8 +300,10 @@ void PrintTokens(FILE *ifp)
                     // test for var, end, call, odd
                     if(strcmp(string, "var") == 0)
                         printf("var\t%d\n", varsym);
+                        
                     else if(strcmp(string, "end") == 0)
                         printf("end\t%d\n", endsym);
+                        
                     else
                         printf("%s\t%d\n", string, identsym);
                 }
@@ -305,12 +312,16 @@ void PrintTokens(FILE *ifp)
                     // test for then, else, read, call
                     if(strcmp(string, "then") == 0)
                         printf("then\t%d\n", thensym);
+                        
                     else if(strcmp(string, "else") == 0)
                         printf("else\t%d\n", elsesym);
+                        
                     else if(strcmp(string, "read") == 0)
                         printf("read\t%d\n", readsym);
+                        
                     else if(strcmp(string, "call") == 0)
                         printf("call\t%d\n", callsym);
+                        
                     else
                         printf("%s\t%d\n", string, identsym);
                 }
@@ -319,22 +330,29 @@ void PrintTokens(FILE *ifp)
                 // test for const begin while write
                     if(strcmp(string, "const") == 0)
                         printf("const\t%d\n", constsym);
+                        
                     else if(strcmp(string, "begin") == 0)
                         printf("begin\t%d\n", beginsym);
+                        
                     else if(strcmp(string, "while") == 0)
                         printf("while\t%d\n", whilesym);
+                        
                     else if(strcmp(string, "write") == 0)
                         printf("write\t%d\n", writesym);
+                        
                     else
                         printf("%s\t%d\n", string, identsym);
                 }
+                
                 // test string for procedure
                 else if(strcmp(string, "procedure") == 0)
                     printf("procedure\t%d\n", procsym);
+                    
                 // else it's a reserved word (or should throw an error if too long)
                 else
                     printf("%s\t%d\n", string, identsym);
             }
+            
             else
                 printf("%s\t%d\n", string, identsym);
 
@@ -344,36 +362,45 @@ void PrintTokens(FILE *ifp)
             counter = 0;
             reserved = 0;
 	    }
+	    
 	    // scans in and prints integers
 	    // should print error if alphabetical char comes right after an integer char
 	    if(isdigit(current))
-	    {
-		while(found == 0 && counter < 6)
 		{
-		    string[counter] = current;
-		    counter++;
-		    current = fgetc(ifp);
-		    if(!isdigit(current))
-		    {
-			if(isalpha(current))
+			while(found == 0 && counter < 6)
 			{
-			    // error here this is just a placeholder
-			    printf("error\n");
+			    string[counter] = current;
+			    counter++;
+			    current = fgetc(ifp);
+			    if(!isdigit(current))
+			    {
+					if(isalpha(current))
+					{
+					    // alpha-num error handling
+					    printf("\nERR: Invalid alphanumeric combination\n");
+					    return;
+					}
+				else if(!isspace(counter))
+				    no_scan = 1;
+				found = 1;
+			    }
 			}
-			else if(!isspace(counter))
-			    no_scan = 1;
-			found = 1;
-		    }
-		}
-		num = atoi(string);
+			num = atoi(string);
+			
+			if(num > 65535){
+				printf("\nERR: Integer Value larger than 65,535 detected\n");
+				return;
+			}
 	        printf("%d\t%d\n", num, numbersym);
 
-		// reinitialize string & counter
-		for(i = 0; i < 12; i++)
-		    string[i] = '\0';
-		counter = 0;
-
+			// reinitialize string & counter
+			for(i = 0; i < 12; i++)
+			    string[i] = '\0';
+			counter = 0;
 	    }
 	}
+	
+	else
+		length = 0;
     }
 }
