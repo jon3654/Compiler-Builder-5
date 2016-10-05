@@ -1,2 +1,2 @@
-Devin Barron: Handled the reading of input into strings to be processed by PrintTokens. Added smalls parts to PrintTokens to cause PrintTokens to return early when the string was empty, and to empty the char array/reset the counter after printing each token.
+Devin Barron: Coded PrintLines function
 Jonathan Brownlee: wrote a large part of PrintTokens, ran test cases on it.
