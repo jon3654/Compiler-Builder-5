@@ -278,7 +278,7 @@ void PrintTokens(FILE *ifp)
             }
             
             // print reserved words or variable here
-	        if(reserved == 1 || counter < 2 || counter > 9)
+	        if(reserved == 1 || counter < 2 || (counter > 9 && counter < 12))
                 printf("%s\t%d\n", string, identsym);
             // test string for reserved words
             else if(reserved == 0)
@@ -347,8 +347,15 @@ void PrintTokens(FILE *ifp)
                 // test string for procedure
                 else if(strcmp(string, "procedure") == 0)
                     printf("procedure\t%d\n", procsym);
+		    
+	       //Throw error if identifier longer than 12 characters
+		else if(counter > 11)
+		{
+			printf("\nERR: Identifier longer than 12 characters detected\n");
+			return;
+		}
                     
-                // else it's a reserved word (or should throw an error if too long)
+                // else it's a reserved word
                 else
                     printf("%s\t%d\n", string, identsym);
             }
@@ -399,8 +406,5 @@ void PrintTokens(FILE *ifp)
 			counter = 0;
 	    }
 	}
-	
-	else
-		length = 0;
     }
 }
