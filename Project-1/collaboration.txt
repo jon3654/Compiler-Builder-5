@@ -1,3 +1,4 @@
 Devin Barron: Coded PrintLines function
 Jonathan Brownlee: wrote a large part of PrintTokens, ran test cases on it.
 Cody Boyer: Created original skeleton and error handling for most cases, skeleton modified by others later.
+Christian Acosta: Added code for error handling and assisted with testing of program.
