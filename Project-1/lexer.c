@@ -243,9 +243,8 @@ void PrintTokens(FILE *ifp)
 				else
 			    	no_scan = 1;
 				break;
-			default:
-				printf("\nERR: Unidentified token detected\n");
-				return;		    
+			default:				
+				continue;
 		}
 	    }
 
@@ -265,15 +264,15 @@ void PrintTokens(FILE *ifp)
                 if(isspace(current))
                     found = 1;
 
-                else if(!isalpha(current) && !isdigit(current))
+               else if(!isalpha(current) && !isdigit(current))
                 {
-                	// Weren't these just for end-of-comment checking?
+                	if(!isspace(current) && (current != ',') && (current != ';') && (current != '.') && (current != ')') && (current != '(') && (current != '+') && (current != '-') && (current != '*') && (current != '/') && (current != '=') && (current != ':') && (current != '>') && (current != '<')){
+                    	printf("\nERR: Unidentified Token %s",string);
+                    	return;
+                	}
+                	
                     found = 1;
                     no_scan = 1;
-                    
-                    // If a symbol is in an alphanumeric string, then it is an invalid token
-                    printf("\nERR: Unidentified Token %s",string);
-                    return;
                 }
             }
             
