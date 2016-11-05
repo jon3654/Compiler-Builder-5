@@ -2,6 +2,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "tokens.h" // Functions in file know value of tokens
+#include "parser.h"
 
 // Will get the next token
 token_type get_token(FILE* ifp, tok_prop *properties){
@@ -110,7 +111,7 @@ token_type get_token(FILE* ifp, tok_prop *properties){
         fscanf(ifp, "%d", &num);
         if(num>65535)
         {
-            printf("\nERR: Integer Value larger than 65,535 detected\n");
+            error(25);
             return nulsym;
         }
         // Save the number before returning
