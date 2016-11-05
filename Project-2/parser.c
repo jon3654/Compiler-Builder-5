@@ -164,9 +164,9 @@ void factor(){
 
 // returns 1 if relationship operator, 0 otherwise
 int rel_op(int token){
-    if(token != eqlsym || token != neqsym || token != lessym || token != leqsym || token != gtrsym || token != geqsym)
-        return 0;
-    else return 1;
+    if(token == eqlsym || token == neqsym || token == lessym || token == leqsym || token == gtrsym || token == geqsym)
+        return 1;
+    else return 0;
 }
 
 
