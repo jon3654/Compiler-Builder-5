@@ -22,119 +22,119 @@ int lookup(){
 void program(){
     token = get_token();
     block();
-    if(token.val != periodsym) error(9);
+    if(token != periodsym) error(9);
 }
 
 void block(){
-    if(token.val == constsym){
-        while(token == commasym){
+    if(token == constsym){
+       do{
             token = get_token();
-            if(token.val != identsym) error(4);
+            if(token != identsym) error(4);
 
             token = get_token();
-            if(token.val != eqsym)
+            if(token != eqsym)
             {
                 if(token == becomessym) error(1);
                 else error(3);
             }
 
             token = get_token();
-            if(token.val != numbersym) error(numbersym);
+            if(token != numbersym) error(numbersym);
 
             token = get_token();
-        }
+        } while(token == commasym);
     }
 
-    if(token.val != semicolonsym) error(semicolonsym);
+    if(token != semicolonsym) error(semicolonsym);
     token = get_token();
 
-    if(token.val == varsym){
-        while(token.val == commasym){
+    if(token == varsym){
+        do{
             token = get_token();
-            if(token.val != identsym) error(4);
+            if(token != identsym) error(4);
 
             token = get_token();
-        }
+        }while(token == commasym);
     }
 
-    if(token.val != semicolonsym) error();
+    if(token != semicolonsym) error();
     token = get_token();
 
-    while(token.val == procsym){
+    while(token == procsym){
         token = get_token();
         if(token != identsym) error(4);
 
         token = get_token();
-        if(token.val != semicolonsym) error(semicolonsym);
+        if(token != semicolonsym) error(semicolonsym);
 
         token = get_token();
         block();
 
-        if(token.val != semicolonsym) error(semicolonsym);
+        if(token != semicolonsym) error(semicolonsym);
         token = get_token();
     }
     statement();
 }
 
 void statement(){
-    if(token.val == identsym){
+    if(token == identsym){
         token = get_token();
-        if (token.val != identsym) error(identsym);
+        if (token != identsym) error(identsym);
 
         token = get_token();
         expression();
     }
-    else if(token.val == callsym){
+    else if(token == callsym){
         token = get_token();
-        if(token.val != callsym) error(callsym);
+        if(token != callsym) error(callsym);
 
         token = get_token();
     }
     else if(token == beginsym){
         token = get_token();
         statement();
-        while(token.val == semicolonsym){
+        while(token == semicolonsym){
             token = get_token();
             statement();
         }
-        if (token.val != endsym) error(endsym);
+        if (token != endsym) error(endsym);
 
         token = get_token();
     }
-    else if(token.val == ifsym){
+    else if(token == ifsym){
         token = get_token();
         condition();
-        if(token.val != thensym) error(thensym);
+        if(token != thensym) error(thensym);
         token = get_token();
         statement();
     }
-    else if(token.val == whilesym){
+    else if(token == whilesym){
         token = get_token();
         condition();
-        if(token.val != dosym) error(dosym);
+        if(token != dosym) error(dosym);
         token = get_token();
         statement();
     }
 }
 
 void condition(){
-    if(token.val == oddsym){
+    if(token == oddsym){
         token = get_token();
         expression();
     }
     else{
         expression();
-        if(rel_op(token.val) == 0) error(34);
+        if(rel_op(token) == 0) error(34);
         token = get_token();
         expression();
     }
 }
 
 void expression(){
-    if(token.val == plussym || token.val == minussym)
+    if(token == plussym || token == minussym)
         token = get_token();
     term();
-    while(token.val == plussym || token.val == minussym){
+    while(token == plussym || token == minussym){
         token = get_token();
         term();
     }
@@ -142,21 +142,21 @@ void expression(){
 
 void term(){
     factor();
-    while(token.val == plussym || token.val == slashsym){
+    while(token == plussym || token == slashsym){
         token = get_token();
         factor();
     }
 }
 
 void factor(){
-    if(token.val == identsym)
+    if(token == identsym)
         token = get_token();
-    else if(token.val == numbersym)
+    else if(token == numbersym)
         token = get_token();
-    else if(token.val == lparentsym){
+    else if(token == lparentsym){
         token = get_token();
         expression();
-        if(token.val != rparentsym) error(rparentsym);
+        if(token != rparentsym) error(rparentsym);
         token = get_token();
     }
     else error();
