@@ -4,7 +4,7 @@
 void parser(FILE* ifp);
 void enter();
 void lookup();
-void error(int token);
+void error(int num);
 
 // main parser function prototypes
 void program();
