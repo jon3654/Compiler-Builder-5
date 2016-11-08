@@ -46,8 +46,7 @@ token_type get_token(FILE* ifp, tok_prop *properties){
         ungetc(current, ifp);
         if(i>12)
         {
-            printf("\nERR: Identifier longer than 12 characters detected\n");
-            return nulsym;
+            error(29);
         }
         // Check if the word is a reserved word
         if(strcmp(word, "begin") == 0)
@@ -114,8 +113,7 @@ token_type get_token(FILE* ifp, tok_prop *properties){
         current=fgetc(ifp);
         if(isalpha(current))
         {
-            printf("\nERR: Invalid alphanumeric combination\n");
-            return nulsym;
+            error(27);
         }
         // Unread the two characters and then read the entire number
         ungetc(current, ifp);
@@ -185,8 +183,7 @@ token_type get_token(FILE* ifp, tok_prop *properties){
         }
         else
         {
-            printf("\nERR: : must be followed by =");
-            return nulsym;
+            error(28);
         }
         break;
     case '=':
@@ -234,9 +231,7 @@ token_type get_token(FILE* ifp, tok_prop *properties){
         return periodsym;
         break;
     default:
-        printf("current character: %c\n", current); //testing
-        printf("\nERR: Unidentified Token %c",current);
-        return nulsym;
+        error(26);
         break;
     }
 
