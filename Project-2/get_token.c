@@ -94,6 +94,14 @@ token_type get_token(FILE* ifp, tok_prop *properties){
         {
             return whilesym;
         }
+        else if(strcmp(word, "write") == 0)
+        {
+            return writesym;
+        }
+        else if(strcmp(word, "read") == 0)
+        {
+            return readsym;
+        }
         // Otherwise save the word temporarily before returning
         strcpy(properties->id, word);
         return identsym;

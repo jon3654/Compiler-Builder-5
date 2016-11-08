@@ -115,6 +115,16 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         *token = get_token(ifp, properties);
         statement(ifp, properties, token);
     }
+    else if(*token == readsym){
+        *token = get_token(ifp, properties);
+        if(*token != identsym) error(4);
+        *token = get_token(ifp, properties);
+    }
+    else if(*token == writesym){
+        *token = get_token(ifp, properties);
+        if(*token != identsym) error(4);
+        *token = get_token(ifp, properties);
+    }
 }
 
 void condition(FILE* ifp, tok_prop *properties, token_type *token){
