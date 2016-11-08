@@ -259,6 +259,18 @@ void error(int num){
     case 25:
         printf("\nError number 25, this number is too large");
         break;
+    case 26:
+        printf("\nError number 26, lexing error: unidentified token");
+        break;
+    case 27:
+        printf("\nError number 27, lexing error: invalid alphanumeric combination");
+        break;
+    case 28:
+        printf("\nError number 28, lexing error: colon must be followed by =");
+        break;
+    case 29:
+        printf("\nError number 29, lexing error: identifier longer than 12 characters detected");
+        break;
     }
     exit(num);
 }
