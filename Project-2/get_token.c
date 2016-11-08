@@ -12,7 +12,6 @@ token_type get_token(FILE* ifp, tok_prop *properties){
     int found;
     int num;
     int i;
-
     // Check for end of file
     if(feof(ifp))
     {
@@ -24,6 +23,11 @@ token_type get_token(FILE* ifp, tok_prop *properties){
     while(current == ' ' || current == '\n' || current == '\t')
     {
         current=fgetc(ifp);
+        // Check for end of file
+        if(feof(ifp))
+        {
+            return nulsym;
+        }
     }
 
     // Check if the first character is a letter, if so it is either an identifier or reserved word
@@ -222,6 +226,7 @@ token_type get_token(FILE* ifp, tok_prop *properties){
         return periodsym;
         break;
     default:
+        printf("current character: %c\n", current); //testing
         printf("\nERR: Unidentified Token %c",current);
         return nulsym;
         break;

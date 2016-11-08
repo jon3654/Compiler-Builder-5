@@ -1,7 +1,6 @@
+#include <stdlib.h>
 #include "tokens.h" // Functions in file know value of tokens and can use get_token()
 #include "parser.h"
-
-token_type token = malloc(sizeof(token));
 
 void parser(FILE* ifp){
 
@@ -19,151 +18,153 @@ int lookup(){
 }
 
 // main parser functions
-void program(){
-    token = get_token();
-    block();
+void program(FILE* ifp, tok_prop *properties){
+    token_type token = get_token(ifp, properties);
+    block(ifp, properties, &token);
     if(token != periodsym) error(9);
+    else printf("\nNo errors, program is syntactically correct");
 }
 
-void block(){
-    if(token == constsym){
+void block(FILE* ifp, tok_prop *properties, token_type *token){
+    if(*token == constsym){
        do{
-            token = get_token();
-            if(token != identsym) error(4);
+            *token = get_token(ifp, properties);
+            if(*token != identsym) error(4);
 
-            token = get_token();
-            if(token != eqsym)
+            *token = get_token(ifp, properties);
+            if(*token != eqlsym)
             {
-                if(token == becomessym) error(1);
+                if(*token == becomessym) error(1);
                 else error(3);
             }
 
-            token = get_token();
-            if(token != numbersym) error(numbersym);
+            *token = get_token(ifp, properties);
+            if(*token != numbersym) error(2);
 
-            token = get_token();
-        } while(token == commasym);
+            *token = get_token(ifp, properties);
+        } while(*token == commasym);
+        if(*token != semicolonsym) error(5);
+            *token = get_token(ifp, properties);
     }
 
-    if(token != semicolonsym) error(semicolonsym);
-    token = get_token();
-
-    if(token == varsym){
+    if(*token == varsym){
         do{
-            token = get_token();
-            if(token != identsym) error(4);
+            *token = get_token(ifp, properties);
+            if(*token != identsym) error(4);
 
-            token = get_token();
-        }while(token == commasym);
+            *token = get_token(ifp, properties);
+        }while(*token == commasym);
+        if(*token != semicolonsym) error(5);
+            *token = get_token(ifp, properties);
     }
 
-    if(token != semicolonsym) error();
-    token = get_token();
+    while(*token == procsym){
+        *token = get_token(ifp, properties);
+        if(*token != identsym) error(4);
 
-    while(token == procsym){
-        token = get_token();
-        if(token != identsym) error(4);
+        *token = get_token(ifp, properties);
+        if(*token != semicolonsym) error(5);
 
-        token = get_token();
-        if(token != semicolonsym) error(semicolonsym);
+        *token = get_token(ifp, properties);
+        block(ifp, properties, token);
 
-        token = get_token();
-        block();
-
-        if(token != semicolonsym) error(semicolonsym);
-        token = get_token();
+        if(*token != semicolonsym) error(5);
+        *token = get_token(ifp, properties);
     }
-    statement();
+    statement(ifp, properties, token);
 }
 
-void statement(){
-    if(token == identsym){
-        token = get_token();
-        if (token != identsym) error(identsym);
+void statement(FILE* ifp, tok_prop *properties, token_type *token){
+    if(*token == identsym){
+        *token = get_token(ifp, properties);
+        if (*token != becomessym) error(13);
 
-        token = get_token();
-        expression();
+        *token = get_token(ifp, properties);
+        expression(ifp, properties, token);
     }
-    else if(token == callsym){
-        token = get_token();
-        if(token != callsym) error(callsym);
+    else if(*token == callsym){
+        *token = get_token(ifp, properties);
+        if(*token != identsym) error(14);
 
-        token = get_token();
+        *token = get_token(ifp, properties);
     }
-    else if(token == beginsym){
-        token = get_token();
-        statement();
-        while(token == semicolonsym){
-            token = get_token();
-            statement();
+    else if(*token == beginsym){
+        *token = get_token(ifp, properties);
+        statement(ifp, properties, token);
+        while(*token == semicolonsym)
+        {
+            *token = get_token(ifp, properties);
+            statement(ifp, properties, token);
         }
-        if (token != endsym) error(endsym);
+        if(*token == identsym || *token == callsym || *token == beginsym || *token == ifsym || *token == whilesym) error(10); // Missing semicolon between statements
+        if (*token != endsym) error(17); // Semicolon or } expected
 
-        token = get_token();
+        *token = get_token(ifp, properties);
     }
-    else if(token == ifsym){
-        token = get_token();
-        condition();
-        if(token != thensym) error(thensym);
-        token = get_token();
-        statement();
+    else if(*token == ifsym){
+        *token = get_token(ifp, properties);
+        condition(ifp, properties, token);
+        if(*token != thensym) error(16);
+        *token = get_token(ifp, properties);
+        statement(ifp, properties, token);
     }
-    else if(token == whilesym){
-        token = get_token();
-        condition();
-        if(token != dosym) error(dosym);
-        token = get_token();
-        statement();
+    else if(*token == whilesym){
+        *token = get_token(ifp, properties);
+        condition(ifp, properties, token);
+        if(*token != dosym) error(18);
+        *token = get_token(ifp, properties);
+        statement(ifp, properties, token);
     }
 }
 
-void condition(){
-    if(token == oddsym){
-        token = get_token();
-        expression();
+void condition(FILE* ifp, tok_prop *properties, token_type *token){
+    if(*token == oddsym){
+        *token = get_token(ifp, properties);
+        expression(ifp, properties, token);
     }
     else{
-        expression();
-        if(rel_op(token) == 0) error(34);
-        token = get_token();
-        expression();
+        expression(ifp, properties, token);
+        if(rel_op(*token) == 0) error(20);
+        *token = get_token(ifp, properties);
+        expression(ifp, properties, token);
     }
 }
 
-void expression(){
-    if(token == plussym || token == minussym)
-        token = get_token();
-    term();
-    while(token == plussym || token == minussym){
-        token = get_token();
-        term();
+void expression(FILE* ifp, tok_prop *properties, token_type *token){
+    if(*token == plussym || *token == minussym)
+        *token = get_token(ifp, properties);
+    term(ifp, properties, token);
+    while(*token == plussym || *token == minussym){
+        *token = get_token(ifp, properties);
+        term(ifp, properties, token);
     }
 }
 
-void term(){
-    factor();
-    while(token == plussym || token == slashsym){
-        token = get_token();
-        factor();
+void term(FILE* ifp, tok_prop *properties, token_type *token){
+    factor(ifp, properties, token);
+    while(*token == multsym || *token == slashsym)
+    {
+        *token = get_token(ifp, properties);
+        factor(ifp, properties, token);
     }
 }
 
-void factor(){
-    if(token == identsym)
-        token = get_token();
-    else if(token == numbersym)
-        token = get_token();
-    else if(token == lparentsym){
-        token = get_token();
-        expression();
-        if(token != rparentsym) error(rparentsym);
-        token = get_token();
+void factor(FILE* ifp, tok_prop *properties, token_type *token){
+    if(*token == identsym)
+        *token = get_token(ifp, properties);
+    else if(*token == numbersym)
+        *token = get_token(ifp, properties);
+    else if(*token == lparentsym){
+        *token = get_token(ifp, properties);
+        expression(ifp, properties, token);
+        if(*token != rparentsym) error(22);
+        *token = get_token(ifp, properties);
     }
-    else error();
+    else error(23);
 }
 
 // returns 1 if relationship operator, 0 otherwise
-int rel_op(int token){
+int rel_op(token_type token){
     if(token == eqlsym || token == neqsym || token == lessym || token == leqsym || token == gtrsym || token == geqsym)
         return 1;
     else return 0;
@@ -171,7 +172,7 @@ int rel_op(int token){
 
 
 void error(int num){
-    switch (token)
+    switch (num)
     {
     case 1:
         printf("\nError number 1, use = instead of :=");
@@ -189,7 +190,7 @@ void error(int num){
         printf("\nError number 5, semicolon or comma missing");
         break;
     case 6:
-        pintf("\nError number 6, incorrect symbol after procedure declaration");
+        printf("\nError number 6, incorrect symbol after procedure declaration");
         break;
     case 7:
         printf("\nError number 7, statement expected");
@@ -249,6 +250,7 @@ void error(int num){
         printf("\nError number 25, this number is too large");
         break;
     }
+    exit(num);
 }
 
 
