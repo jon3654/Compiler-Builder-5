@@ -6,7 +6,7 @@
 
 typedef struct symbol {
  int kind;          // const = 1, var = 2, proc = 3
- char name[12];     // name up to 11 chars
+ char name[12];     // name up to 12 chars
  int val;           // number (ASCII value)
  int level;         // L level
  int addr;          // M address
