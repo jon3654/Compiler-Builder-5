@@ -44,9 +44,9 @@ token_type get_token(FILE* ifp, tok_prop *properties){
         word[i]='\0';
         // Allow the extra character to be read later
         ungetc(current, ifp);
-        if(i>11)
+        if(i>12)
         {
-            printf("\nERR: Identifier longer than 11 characters detected\n");
+            printf("\nERR: Identifier longer than 12 characters detected\n");
             return nulsym;
         }
         // Check if the word is a reserved word
