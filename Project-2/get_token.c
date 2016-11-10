@@ -3,6 +3,8 @@
 #include <ctype.h>
 #include "tokens.h" // Functions in file know value of tokens
 #include "parser.h"
+#include "generator.h"
+#include "symbol.h"
 
 // Will get the next token
 token_type get_token(FILE* ifp, tok_prop *properties){
@@ -234,5 +236,5 @@ token_type get_token(FILE* ifp, tok_prop *properties){
         error(26);
         break;
     }
-
+    return nulsym;
 }

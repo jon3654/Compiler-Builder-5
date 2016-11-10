@@ -9,7 +9,7 @@ typedef enum token {nulsym = 1, identsym = 2, numbersym = 3, plussym = 4, minuss
     constsym = 28, varsym = 29, procsym = 30, writesym = 31, readsym = 32, elsesym = 33} token_type;
 
 typedef struct tok_prop{
-    char id[12];
+    char id[13];
     int val;
 }tok_prop;
 
