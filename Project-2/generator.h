@@ -2,5 +2,4 @@
 #define GENERATOR_H_INCLUDED
 
 
-
 #endif // GENERATOR_H_INCLUDED

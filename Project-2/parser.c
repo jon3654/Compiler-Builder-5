@@ -1,21 +1,13 @@
 #include <stdlib.h>
 #include "tokens.h" // Functions in file know value of tokens and can use get_token()
 #include "parser.h"
+#include "generator.h"
+#include "symbol.h"
 
 void parser(FILE* ifp){
 
 }
 
-
-// Inserts into the symbol table
-void enter(){
-
-}
-
-// Looks up previously entered symbol
-int lookup(){
-
-}
 
 // main parser functions
 void program(FILE* ifp, tok_prop *properties){
@@ -40,7 +32,9 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
 
             *token = get_token(ifp, properties);
             if(*token != numbersym) error(2);
-
+           
+            put_symbol(1, properties->id, properties->val, 0, 0);
+           
             *token = get_token(ifp, properties);
         } while(*token == commasym);
         if(*token != semicolonsym) error(5);
@@ -48,12 +42,17 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
     }
 
     if(*token == varsym){
+        int numvars = 0;
         do{
             *token = get_token(ifp, properties);
             if(*token != identsym) error(4);
-
+            
+            numvars++;
+            put_symbol(1, properties->id, 0, 0, 3 + numvars);
+            
             *token = get_token(ifp, properties);
         }while(*token == commasym);
+        
         if(*token != semicolonsym) error(5);
             *token = get_token(ifp, properties);
     }
@@ -105,6 +104,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         *token = get_token(ifp, properties);
         condition(ifp, properties, token);
         if(*token != thensym) error(16);
+        
         *token = get_token(ifp, properties);
         statement(ifp, properties, token);
     }
