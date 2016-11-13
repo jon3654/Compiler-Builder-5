@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdlib.h>
 #include "tokens.h" // Functions in file know value of tokens
 #include "parser.h"
 #include "generator.h"
