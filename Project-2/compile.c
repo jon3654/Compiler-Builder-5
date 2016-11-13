@@ -16,7 +16,7 @@ int main(int argc, char* argv[]){
     cx=0;
 
     // Parse the input
-    program(ifp, ofp, &properties);
+    program(ifp, &properties);
 
     // Generate intermediate code
     generate(ofp);
