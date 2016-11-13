@@ -1,13 +1,9 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "tokens.h" // Functions in file know value of tokens and can use get_token()
 #include "parser.h"
 #include "generator.h"
 #include "symbol.h"
-
-void parser(FILE* ifp){
-
-}
-
 
 // main parser functions
 void program(FILE* ifp, tok_prop *properties){
@@ -32,9 +28,9 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
 
             *token = get_token(ifp, properties);
             if(*token != numbersym) error(2);
-           
+
             put_symbol(1, properties->id, properties->val, 0, 0);
-           
+
             *token = get_token(ifp, properties);
         } while(*token == commasym);
         if(*token != semicolonsym) error(5);
@@ -46,15 +42,16 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
         do{
             *token = get_token(ifp, properties);
             if(*token != identsym) error(4);
-            
+
             numvars++;
             put_symbol(1, properties->id, 0, 0, 3 + numvars);
-            
+
             *token = get_token(ifp, properties);
         }while(*token == commasym);
-        
+
         if(*token != semicolonsym) error(5);
             *token = get_token(ifp, properties);
+        emit(INC, 0, 4+numvars);
     }
 
     while(*token == procsym){
@@ -74,6 +71,7 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
 }
 
 void statement(FILE* ifp, tok_prop *properties, token_type *token){
+    int ctemp; // Temporary counter
     if(*token == identsym){
         *token = get_token(ifp, properties);
         if (*token != becomessym) error(13);
@@ -104,7 +102,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         *token = get_token(ifp, properties);
         condition(ifp, properties, token);
         if(*token != thensym) error(16);
-        
+
         *token = get_token(ifp, properties);
         statement(ifp, properties, token);
     }
@@ -141,21 +139,52 @@ void condition(FILE* ifp, tok_prop *properties, token_type *token){
 }
 
 void expression(FILE* ifp, tok_prop *properties, token_type *token){
+    token_type addop;
     if(*token == plussym || *token == minussym)
-        *token = get_token(ifp, properties);
-    term(ifp, properties, token);
-    while(*token == plussym || *token == minussym){
+    {
+        addop = *token;
         *token = get_token(ifp, properties);
         term(ifp, properties, token);
+        if(addop == minussym)
+        {
+            emit(OPR, 0, NEG);
+        }
+    }
+    else
+    {
+        term(ifp, properties, token);
+    }
+    while(*token == plussym || *token == minussym){
+        addop = *token;
+        *token = get_token(ifp, properties);
+        term(ifp, properties, token);
+        if(addop == plussym)
+        {
+            emit(OPR, 0, ADD);
+        }
+        else
+        {
+            emit(OPR, 0, SUB);
+        }
     }
 }
 
 void term(FILE* ifp, tok_prop *properties, token_type *token){
+    int mulop;
     factor(ifp, properties, token);
     while(*token == multsym || *token == slashsym)
     {
+        mulop = *token;
         *token = get_token(ifp, properties);
         factor(ifp, properties, token);
+        if(mulop == multsym)
+        {
+            emit(OPR, 0, MUL);
+        }
+        else
+        {
+            emit(OPR, 0, DIV);
+        }
     }
 }
 
@@ -270,6 +299,9 @@ void error(int num){
         break;
     case 29:
         printf("\nError number 29, lexing error: identifier longer than 12 characters detected");
+        break;
+    case 30:
+        printf("\nError number 30, code too long");
         break;
     }
     exit(num);
