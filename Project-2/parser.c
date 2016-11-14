@@ -71,7 +71,10 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
 }
 
 void statement(FILE* ifp, tok_prop *properties, token_type *token){
-    int ctemp; // Temporary counter
+    int ctemp; // Temporary counter for if
+    int cx1; // First temporary counter for while
+    int cx2; // Second temporary counter for while
+
     if(*token == identsym){
         *token = get_token(ifp, properties);
         if (*token != becomessym) error(13);
@@ -101,17 +104,24 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
     else if(*token == ifsym){
         *token = get_token(ifp, properties);
         condition(ifp, properties, token);
-        if(*token != thensym) error(16);
-
+        if(*token != thensym) error(16); // Then expected
         *token = get_token(ifp, properties);
+        ctemp=cx; // Temporarily saves the code index
+        emit(JPC, 0, 0);
         statement(ifp, properties, token);
+        code[ctemp].m=cx; // Change JPC 0 0 to JPC 0 cx
     }
     else if(*token == whilesym){
+        cx1=cx; // Temporarily saves first code index
         *token = get_token(ifp, properties);
         condition(ifp, properties, token);
-        if(*token != dosym) error(18);
+        cx2=cx; // Temporarily saves second code index
+        emit(JPC, 0, 0);
+        if(*token != dosym) error(18); // Do expected
         *token = get_token(ifp, properties);
         statement(ifp, properties, token);
+        emit(JMP, 0, cx1);
+        code[cx2].m=cx; // JPC 0 0 to JPC 0 cx
     }
     else if(*token == readsym){
         *token = get_token(ifp, properties);
