@@ -2,7 +2,8 @@
 #include "symbol.h"
 
 void init_array(){
-    for(int i = 0; i < MAX_SYMBOL_TABLE_SIZE; i++){
+    int i;
+    for(i = 0; i < MAX_SYMBOL_TABLE_SIZE; i++){
         symbol_table[i].kind = 0;
         strcpy(symbol_table[i].name, "NULL");
         symbol_table[i].level = 0;
