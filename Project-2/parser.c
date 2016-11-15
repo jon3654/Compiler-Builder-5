@@ -4,6 +4,7 @@
 #include "parser.h"
 #include "generator.h"
 #include "symbol.h"
+#include <string.h>
 
 // main parser functions
 void program(FILE* ifp, tok_prop *properties){
@@ -50,10 +51,13 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
         }while(*token == commasym);
 
         if(*token != semicolonsym) error(5);
-            *token = get_token(ifp, properties);
+        
+        *token = get_token(ifp, properties);
+        
         emit(INC, 0, 4+numvars);
     }
 
+    // we don't need procedures for tiny PL/0
     while(*token == procsym){
         *token = get_token(ifp, properties);
         if(*token != identsym) error(4);
@@ -74,20 +78,25 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
     int ctemp; // Temporary counter for if
     int cx1; // First temporary counter for while
     int cx2; // Second temporary counter for while
-
+    int index; // keeps track of where in the symbol_table array a symbol is
+    
     if(*token == identsym){
         *token = get_token(ifp, properties);
+        index = getsymbol(properties->id);
+        
         if (*token != becomessym) error(13);
 
         *token = get_token(ifp, properties);
         expression(ifp, properties, token);
     }
+    // no calls in Tiny PL/0
     else if(*token == callsym){
         *token = get_token(ifp, properties);
         if(*token != identsym) error(14);
 
         *token = get_token(ifp, properties);
     }
+    
     else if(*token == beginsym){
         *token = get_token(ifp, properties);
         statement(ifp, properties, token);
@@ -101,6 +110,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
 
         *token = get_token(ifp, properties);
     }
+    
     else if(*token == ifsym){
         *token = get_token(ifp, properties);
         condition(ifp, properties, token);
@@ -111,23 +121,34 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         statement(ifp, properties, token);
         code[ctemp].m=cx; // Change JPC 0 0 to JPC 0 cx
     }
+    
     else if(*token == whilesym){
         cx1=cx; // Temporarily saves first code index
+        
         *token = get_token(ifp, properties);
         condition(ifp, properties, token);
+        
         cx2=cx; // Temporarily saves second code index
         emit(JPC, 0, 0);
         if(*token != dosym) error(18); // Do expected
         *token = get_token(ifp, properties);
+        
         statement(ifp, properties, token);
         emit(JMP, 0, cx1);
         code[cx2].m=cx; // JPC 0 0 to JPC 0 cx
     }
+    
     else if(*token == readsym){
+        emit(SIO, 0, 1);
+        
         *token = get_token(ifp, properties);
         if(*token != identsym) error(4);
+        
+        emit(STO, 0, symbol_table[getsymbol(properties->id)].modifier);
+
         *token = get_token(ifp, properties);
     }
+    
     else if(*token == writesym){
         *token = get_token(ifp, properties);
         if(*token != identsym) error(4);
@@ -199,14 +220,19 @@ void term(FILE* ifp, tok_prop *properties, token_type *token){
 }
 
 void factor(FILE* ifp, tok_prop *properties, token_type *token){
-    if(*token == identsym)
+    if(*token == identsym){
+        //emit(LOD, 0, symbol_table[getsymbol(properties->id)].level);
         *token = get_token(ifp, properties);
-    else if(*token == numbersym)
+    }
+    else if(*token == numbersym){
         *token = get_token(ifp, properties);
+    }
     else if(*token == lparentsym){
         *token = get_token(ifp, properties);
+        
         expression(ifp, properties, token);
         if(*token != rparentsym) error(22);
+        
         *token = get_token(ifp, properties);
     }
     else error(23);
