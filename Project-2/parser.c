@@ -34,7 +34,7 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
             if(*token != numbersym) error(2);
 
             put_symbol(1, properties->id, properties->val, 0, 0);
-
+            emit(LIT, 0, properties->val);
             *token = get_token(ifp, properties);
         } while(*token == commasym);
         if(*token != semicolonsym) error(5);
@@ -231,7 +231,7 @@ void term(FILE* ifp, tok_prop *properties, token_type *token){
 
 void factor(FILE* ifp, tok_prop *properties, token_type *token){
     if(*token == identsym){
-        //emit(LOD, 0, symbol_table[getsymbol(properties->id)].level);
+        emit(LOD, 0, symbol_table[getsymbol(properties->id)].modifier);
         *token = get_token(ifp, properties);
     }
     else if(*token == numbersym){
