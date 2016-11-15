@@ -20,6 +20,6 @@ void generate(FILE* ofp){
     int i;
     for(i=0; i<cx; i++)
     {
-        printf("%d %d %d\n", code[i].op, code[i].l, code[i].m);
+        fprintf(ofp, "%d %d %d\n", code[i].op, code[i].l, code[i].m);
     }
 }
