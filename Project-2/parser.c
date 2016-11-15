@@ -10,7 +10,7 @@ void program(FILE* ifp, tok_prop *properties){
     token_type token = get_token(ifp, properties);
     block(ifp, properties, &token);
     if(token != periodsym) error(9);
-    else printf("\nNo errors, program is syntactically correct");
+    else printf("\nNo errors, program is syntactically correct\n");
 }
 
 void block(FILE* ifp, tok_prop *properties, token_type *token){
@@ -224,94 +224,94 @@ void error(int num){
     switch (num)
     {
     case 1:
-        printf("\nError number 1, use = instead of :=");
+        printf("\nError number 1, use = instead of :=\n");
         break;
     case 2:
-        printf("\nError number 2, = must be followed by a number");
+        printf("\nError number 2, = must be followed by a number\n");
         break;
     case 3:
-        printf("\nError number 3, identifier must be followed by =");
+        printf("\nError number 3, identifier must be followed by =\n");
         break;
     case 4:
-        printf("\nError number 4, const, var, procedure must be followed by identifier");
+        printf("\nError number 4, const, var, procedure must be followed by identifier\n");
         break;
     case 5:
-        printf("\nError number 5, semicolon or comma missing");
+        printf("\nError number 5, semicolon or comma missing\n");
         break;
     case 6:
-        printf("\nError number 6, incorrect symbol after procedure declaration");
+        printf("\nError number 6, incorrect symbol after procedure declaration\n");
         break;
     case 7:
-        printf("\nError number 7, statement expected");
+        printf("\nError number 7, statement expected\n");
         break;
     case 8:
-        printf("\nError number 8, incorrect symbol after statement part in block");
+        printf("\nError number 8, incorrect symbol after statement part in block\n");
         break;
     case 9:
-        printf("\nError number 9, period expected");
+        printf("\nError number 9, period expected\n");
         break;
     case 10:
-        printf("\nError number 10, semicolon between statements missing");
+        printf("\nError number 10, semicolon between statements missing\n");
         break;
     case 11:
-        printf("\nError number 11, undeclared identifier");
+        printf("\nError number 11, undeclared identifier\n");
         break;
     case 12:
-        printf("\nError number 12, assignment to constant or procedure is not allowed");
+        printf("\nError number 12, assignment to constant or procedure is not allowed\n");
         break;
     case 13:
-        printf("\nError number 13, assignment operator expected");
+        printf("\nError number 13, assignment operator expected\n");
         break;
     case 14:
-        printf("\nError number 14, call must be followed by an identifier");
+        printf("\nError number 14, call must be followed by an identifier\n");
         break;
     case 15:
-        printf("\nError number 15, call of a constant or variable is meaningless");
+        printf("\nError number 15, call of a constant or variable is meaningless\n");
         break;
     case 16:
-        printf("\nError number 16, then expected");
+        printf("\nError number 16, then expected\n");
         break;
     case 17:
-        printf("\nError number 17, semicolon or } expected");
+        printf("\nError number 17, semicolon or } expected\n");
         break;
     case 18:
-        printf("\nError number 18, do expected");
+        printf("\nError number 18, do expected\n");
         break;
     case 19:
-        printf("\nError number 19, incorrect symbol following statement");
+        printf("\nError number 19, incorrect symbol following statement\n");
         break;
     case 20:
-        printf("\nError number 20, relational operator expected");
+        printf("\nError number 20, relational operator expected\n");
         break;
     case 21:
-        printf("\nError number 21, expression must not contain a procedure identifier");
+        printf("\nError number 21, expression must not contain a procedure identifier\n");
         break;
     case 22:
-        printf("\nError number 22, right parenthesis missing");
+        printf("\nError number 22, right parenthesis missing\n");
         break;
     case 23:
-        printf("\nError number 23, the preceding factor cannot begin with this symbol");
+        printf("\nError number 23, the preceding factor cannot begin with this symbol\n");
         break;
     case 24:
-        printf("\nError number 24, an expression cannot begin with this symbol");
+        printf("\nError number 24, an expression cannot begin with this symbol\n");
         break;
     case 25:
-        printf("\nError number 25, this number is too large");
+        printf("\nError number 25, this number is too large\n");
         break;
     case 26:
-        printf("\nError number 26, lexing error: unidentified token");
+        printf("\nError number 26, lexing error: unidentified token\n");
         break;
     case 27:
-        printf("\nError number 27, lexing error: invalid alphanumeric combination");
+        printf("\nError number 27, lexing error: invalid alphanumeric combination\n");
         break;
     case 28:
-        printf("\nError number 28, lexing error: colon must be followed by =");
+        printf("\nError number 28, lexing error: colon must be followed by =\n");
         break;
     case 29:
-        printf("\nError number 29, lexing error: identifier longer than 12 characters detected");
+        printf("\nError number 29, lexing error: identifier longer than 12 characters detected\n");
         break;
     case 30:
-        printf("\nError number 30, code too long");
+        printf("\nError number 30, code too long\n");
         break;
     }
     exit(num);
