@@ -34,15 +34,14 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
             if(*token != numbersym) error(2);
 
             put_symbol(1, properties->id, properties->val, 0, 0);
-            emit(LIT, 0, properties->val);
+            
             *token = get_token(ifp, properties);
         } while(*token == commasym);
         if(*token != semicolonsym) error(5);
             *token = get_token(ifp, properties);
     }
-
+    int numvars = 0;
     if(*token == varsym){
-        int numvars = 0;
         do{
             *token = get_token(ifp, properties);
             if(*token != identsym) error(4);
@@ -57,9 +56,8 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
         
         *token = get_token(ifp, properties);
         
-        emit(INC, 0, 4+numvars);
     }
-
+    emit(INC, 0, 4+numvars);
     // we don't need procedures for tiny PL/0
     while(*token == procsym){
         *token = get_token(ifp, properties);
@@ -159,8 +157,13 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         *token = get_token(ifp, properties);
         
         if(*token != identsym) error(4);
+
+        if(symbol_table[getsymbol(properties->id)].kind == 2)
+            emit(LOD, 0, symbol_table[getsymbol(properties->id)].modifier);
         
-        emit(LOD, 0, symbol_table[getsymbol(properties->id)].modifier);
+        if(symbol_table[getsymbol(properties->id)].kind == 1)
+            emit(LIT, 0, symbol_table[getsymbol(properties->id)].num);
+        
         emit(SIO, 0, 0);
         *token = get_token(ifp, properties);
     }
