@@ -3,6 +3,7 @@
 #include "parser.h"
 #include "tokens.h"
 #include "generator.h"
+#include "symbol.h"
 
 int main(int argc, char* argv[]){
     // Open the input/output file
