@@ -23,5 +23,10 @@ int main(int argc, char* argv[]){
 
     // Generate intermediate code
     generate(ofp);
+
+    // Close the files
+    fclose(ifp);
+    fclose(ofp);
+
     return 0;
 }
