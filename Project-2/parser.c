@@ -10,7 +10,7 @@ void program(FILE* ifp, tok_prop *properties){
     token_type token = get_token(ifp, properties);
     block(ifp, properties, &token);
     if(token != periodsym) error(9);
-    else printf("\nNo errors, program is syntactically correct");
+    else printf("\nNo errors, program is syntactically correct\n");
 }
 
 void block(FILE* ifp, tok_prop *properties, token_type *token){
