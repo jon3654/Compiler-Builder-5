@@ -4,13 +4,17 @@
 #include "parser.h"
 #include "generator.h"
 #include "symbol.h"
+#include <string.h>
 
 // main parser functions
 void program(FILE* ifp, tok_prop *properties){
     token_type token = get_token(ifp, properties);
     block(ifp, properties, &token);
     if(token != periodsym) error(9);
-    else printf("\nNo errors, program is syntactically correct\n");
+    else {
+        emit(SIO, 0, 2);
+        printf("\nNo errors, program is syntactically correct\n");
+    }
 }
 
 void block(FILE* ifp, tok_prop *properties, token_type *token){
@@ -30,7 +34,7 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
             if(*token != numbersym) error(2);
 
             put_symbol(1, properties->id, properties->val, 0, 0);
-
+            emit(LIT, 0, properties->val);
             *token = get_token(ifp, properties);
         } while(*token == commasym);
         if(*token != semicolonsym) error(5);
@@ -50,10 +54,13 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
         }while(*token == commasym);
 
         if(*token != semicolonsym) error(5);
-            *token = get_token(ifp, properties);
+        
+        *token = get_token(ifp, properties);
+        
         emit(INC, 0, 4+numvars);
     }
 
+    // we don't need procedures for tiny PL/0
     while(*token == procsym){
         *token = get_token(ifp, properties);
         if(*token != identsym) error(4);
@@ -74,20 +81,27 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
     int ctemp; // Temporary counter for if
     int cx1; // First temporary counter for while
     int cx2; // Second temporary counter for while
-
+    int index = 0; // keeps track of where in the symbol_table array a symbol is
+    
     if(*token == identsym){
         *token = get_token(ifp, properties);
+        index = getsymbol(properties->id);
+        
         if (*token != becomessym) error(13);
-
+        
         *token = get_token(ifp, properties);
         expression(ifp, properties, token);
+        
+        emit(STO, 0, symbol_table[index].modifier);
     }
+    // no calls in Tiny PL/0
     else if(*token == callsym){
         *token = get_token(ifp, properties);
         if(*token != identsym) error(14);
 
         *token = get_token(ifp, properties);
     }
+    
     else if(*token == beginsym){
         *token = get_token(ifp, properties);
         statement(ifp, properties, token);
@@ -101,9 +115,11 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
 
         *token = get_token(ifp, properties);
     }
+    
     else if(*token == ifsym){
         *token = get_token(ifp, properties);
         condition(ifp, properties, token);
+        
         if(*token != thensym) error(16); // Then expected
         *token = get_token(ifp, properties);
         ctemp=cx; // Temporarily saves the code index
@@ -111,26 +127,41 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         statement(ifp, properties, token);
         code[ctemp].m=cx; // Change JPC 0 0 to JPC 0 cx
     }
+    
     else if(*token == whilesym){
         cx1=cx; // Temporarily saves first code index
+        
         *token = get_token(ifp, properties);
         condition(ifp, properties, token);
+        
         cx2=cx; // Temporarily saves second code index
         emit(JPC, 0, 0);
         if(*token != dosym) error(18); // Do expected
         *token = get_token(ifp, properties);
+        
         statement(ifp, properties, token);
         emit(JMP, 0, cx1);
         code[cx2].m=cx; // JPC 0 0 to JPC 0 cx
     }
+    
     else if(*token == readsym){
+        emit(SIO, 0, 1);
+        
         *token = get_token(ifp, properties);
         if(*token != identsym) error(4);
+        
+        emit(STO, 0, symbol_table[getsymbol(properties->id)].modifier);
+
         *token = get_token(ifp, properties);
     }
+    
     else if(*token == writesym){
         *token = get_token(ifp, properties);
+        
         if(*token != identsym) error(4);
+        
+        emit(LOD, 0, symbol_table[getsymbol(properties->id)].modifier);
+        emit(SIO, 0, 0);
         *token = get_token(ifp, properties);
     }
 }
@@ -142,9 +173,11 @@ void condition(FILE* ifp, tok_prop *properties, token_type *token){
     }
     else{
         expression(ifp, properties, token);
-        if(rel_op(*token) == 0) error(20);
+        int tmp = rel_op(*token);
+        if(tmp == 0) error(20);
         *token = get_token(ifp, properties);
         expression(ifp, properties, token);
+        emit(OPR, 0, tmp);
     }
 }
 
@@ -199,14 +232,20 @@ void term(FILE* ifp, tok_prop *properties, token_type *token){
 }
 
 void factor(FILE* ifp, tok_prop *properties, token_type *token){
-    if(*token == identsym)
+    if(*token == identsym){
+        emit(LOD, 0, symbol_table[getsymbol(properties->id)].modifier);
         *token = get_token(ifp, properties);
-    else if(*token == numbersym)
+    }
+    else if(*token == numbersym){
         *token = get_token(ifp, properties);
+        emit(LIT, 0, properties->val);
+    }
     else if(*token == lparentsym){
         *token = get_token(ifp, properties);
+        
         expression(ifp, properties, token);
         if(*token != rparentsym) error(22);
+        
         *token = get_token(ifp, properties);
     }
     else error(23);
@@ -214,8 +253,18 @@ void factor(FILE* ifp, tok_prop *properties, token_type *token){
 
 // returns 1 if relationship operator, 0 otherwise
 int rel_op(token_type token){
-    if(token == eqlsym || token == neqsym || token == lessym || token == leqsym || token == gtrsym || token == geqsym)
-        return 1;
+    if(token == eqlsym)
+        return EQL;
+    if(token == neqsym)
+        return NEQ;
+    if(token == lessym)
+        return LSS;
+    if(token == leqsym)
+        return LEQ;
+    if( token == gtrsym)
+        return GTR;
+    if(token == geqsym)
+        return GEQ;
     else return 0;
 }
 
