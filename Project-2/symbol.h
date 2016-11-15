@@ -14,7 +14,7 @@ typedef struct symbol{
 int numsym; // keeps tracks of how many symbols are in the symbol table
 struct symbol symbol_table[MAX_SYMBOL_TABLE_SIZE];
 
-symbol_type *getsymbol(char* name);
+int getsymbol(char* name);
 void put_symbol(int kind, char* name, int num, int level, int modifier);
 
 #endif

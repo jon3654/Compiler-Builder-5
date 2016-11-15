@@ -28,7 +28,7 @@ void put_symbol(int kind, char *name, int num, int level, int modifier){
     symbol_table[i].modifier = modifier;
 }
 
-symbol_type *getsymbol(char *name){
+int getsymbol(char *name){
     int found = 0;
     int i = 0;
     
@@ -39,5 +39,5 @@ symbol_type *getsymbol(char *name){
             i++;
     }
 
-    return &symbol_table[i];
+    return i;
 }
