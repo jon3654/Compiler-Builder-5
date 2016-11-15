@@ -81,16 +81,18 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
     int ctemp; // Temporary counter for if
     int cx1; // First temporary counter for while
     int cx2; // Second temporary counter for while
-    int index; // keeps track of where in the symbol_table array a symbol is
+    int index = 0; // keeps track of where in the symbol_table array a symbol is
     
     if(*token == identsym){
         *token = get_token(ifp, properties);
         index = getsymbol(properties->id);
         
         if (*token != becomessym) error(13);
-
+        
         *token = get_token(ifp, properties);
         expression(ifp, properties, token);
+        
+        emit(STO, 0, symbol_table[index].modifier);
     }
     // no calls in Tiny PL/0
     else if(*token == callsym){
@@ -117,6 +119,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
     else if(*token == ifsym){
         *token = get_token(ifp, properties);
         condition(ifp, properties, token);
+        
         if(*token != thensym) error(16); // Then expected
         *token = get_token(ifp, properties);
         ctemp=cx; // Temporarily saves the code index
@@ -154,7 +157,11 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
     
     else if(*token == writesym){
         *token = get_token(ifp, properties);
+        
         if(*token != identsym) error(4);
+        
+        emit(LOD, 0, symbol_table[getsymbol(properties->id)].modifier);
+        emit(SIO, 0, 0);
         *token = get_token(ifp, properties);
     }
 }
@@ -229,6 +236,7 @@ void factor(FILE* ifp, tok_prop *properties, token_type *token){
     }
     else if(*token == numbersym){
         *token = get_token(ifp, properties);
+        emit(LIT, 0, properties->val);
     }
     else if(*token == lparentsym){
         *token = get_token(ifp, properties);
