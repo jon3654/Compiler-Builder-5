@@ -29,5 +29,15 @@ void put_symbol(int kind, char *name, int num, int level, int modifier){
 }
 
 symbol_type *getsymbol(char *name){
-    return symbol_table;
+    int found = 0;
+    int i = 0;
+    
+    while(found != 0){
+        if(strcmp(symbol_table[i].name, name) == 0 || strcmp(symbol_table[i].name, "NULL") == 0)
+            found = 1;
+        else
+            i++;
+    }
+
+    return &symbol_table[i];
 }
