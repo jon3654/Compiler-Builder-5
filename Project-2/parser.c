@@ -173,9 +173,11 @@ void condition(FILE* ifp, tok_prop *properties, token_type *token){
     }
     else{
         expression(ifp, properties, token);
-        if(rel_op(*token) == 0) error(20);
+        int tmp = rel_op(*token);
+        if(tmp == 0) error(20);
         *token = get_token(ifp, properties);
         expression(ifp, properties, token);
+        emit(OPR, 0, tmp);
     }
 }
 
@@ -251,8 +253,18 @@ void factor(FILE* ifp, tok_prop *properties, token_type *token){
 
 // returns 1 if relationship operator, 0 otherwise
 int rel_op(token_type token){
-    if(token == eqlsym || token == neqsym || token == lessym || token == leqsym || token == gtrsym || token == geqsym)
-        return 1;
+    if(token == eqlsym)
+        return EQL;
+    if(token == neqsym)
+        return NEQ;
+    if(token == lessym)
+        return LSS;
+    if(token == leqsym)
+        return LEQ;
+    if( token == gtrsym)
+        return GTR;
+    if(token == geqsym)
+        return GEQ;
     else return 0;
 }
 
