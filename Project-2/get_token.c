@@ -104,6 +104,10 @@ token_type get_token(FILE* ifp, tok_prop *properties){
         {
             return readsym;
         }
+        else if(strcmp(word, "else") == 0)
+        {
+            return elsesym;
+        }
         // Otherwise save the word temporarily before returning
         strcpy(properties->id, word);
         return identsym;
