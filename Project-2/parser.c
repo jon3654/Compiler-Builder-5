@@ -34,7 +34,7 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
             if(*token != numbersym) error(2);
 
             put_symbol(1, properties->id, properties->val, 0, 0);
-            
+
             *token = get_token(ifp, properties);
         } while(*token == commasym);
         if(*token != semicolonsym) error(5);
@@ -53,9 +53,9 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
         }while(*token == commasym);
 
         if(*token != semicolonsym) error(5);
-        
+
         *token = get_token(ifp, properties);
-        
+
     }
     emit(INC, 0, 4+numvars);
     // we don't need procedures for tiny PL/0
@@ -80,16 +80,18 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
     int cx1; // First temporary counter for while
     int cx2; // Second temporary counter for while
     int index = 0; // keeps track of where in the symbol_table array a symbol is
-    
+
     if(*token == identsym){
         *token = get_token(ifp, properties);
         index = getsymbol(properties->id);
-        
-        if (*token != becomessym) error(13);
-        
+
+        if(symbol_table[index].kind != 2) error(12); // Assignment to constant or procedure is not allowed
+
+        if (*token != becomessym) error(13); // Assignment operator expected
+
         *token = get_token(ifp, properties);
         expression(ifp, properties, token);
-        
+
         emit(STO, 0, symbol_table[index].modifier);
     }
     // no calls in Tiny PL/0
@@ -99,7 +101,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
 
         *token = get_token(ifp, properties);
     }
-    
+
     else if(*token == beginsym){
         *token = get_token(ifp, properties);
         statement(ifp, properties, token);
@@ -113,11 +115,11 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
 
         *token = get_token(ifp, properties);
     }
-    
+
     else if(*token == ifsym){
         *token = get_token(ifp, properties);
         condition(ifp, properties, token);
-        
+
         if(*token != thensym) error(16); // Then expected
         *token = get_token(ifp, properties);
         ctemp=cx; // Temporarily saves the code index
@@ -125,51 +127,51 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         statement(ifp, properties, token);
         code[ctemp].m=cx; // Change JPC 0 0 to JPC 0 cx
     }
-    
+
     else if(*token == whilesym){
         cx1=cx; // Temporarily saves first code index
-        
+
         *token = get_token(ifp, properties);
         condition(ifp, properties, token);
-        
+
         cx2=cx; // Temporarily saves second code index
         emit(JPC, 0, 0);
         if(*token != dosym) error(18); // Do expected
         *token = get_token(ifp, properties);
-        
+
         statement(ifp, properties, token);
         emit(JMP, 0, cx1);
         code[cx2].m=cx; // JPC 0 0 to JPC 0 cx
     }
-    
+
     else if(*token == readsym){
         emit(SIO, 0, 1);
-        
+
         *token = get_token(ifp, properties);
         if(*token != identsym) error(4);
-        
+
         emit(STO, 0, symbol_table[getsymbol(properties->id)].modifier);
 
         *token = get_token(ifp, properties);
     }
-    
+
     else if(*token == writesym){
         *token = get_token(ifp, properties);
-        
+
         if(*token != identsym) error(4);
 
         if(symbol_table[getsymbol(properties->id)].kind == 2)
             emit(LOD, 0, symbol_table[getsymbol(properties->id)].modifier);
-        
+
         if(symbol_table[getsymbol(properties->id)].kind == 1)
             emit(LIT, 0, symbol_table[getsymbol(properties->id)].num);
-        
+
         emit(SIO, 0, 0);
         *token = get_token(ifp, properties);
     }
-    
+
 	 else if(*token == elsesym){
-		 
+
         *token = get_token(ifp, properties);
         ctemp=cx; // Temporarily saves the code index
         emit(JPC, 0, 0);
@@ -254,10 +256,10 @@ void factor(FILE* ifp, tok_prop *properties, token_type *token){
     }
     else if(*token == lparentsym){
         *token = get_token(ifp, properties);
-        
+
         expression(ifp, properties, token);
         if(*token != rparentsym) error(22);
-        
+
         *token = get_token(ifp, properties);
     }
     else error(23);
