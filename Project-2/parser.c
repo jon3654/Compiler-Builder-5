@@ -149,8 +149,9 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
 
         *token = get_token(ifp, properties);
         if(*token != identsym) error(4);
-
-        emit(STO, 0, symbol_table[getsymbol(properties->id)].modifier);
+        index = getsymbol(properties->id);
+        if(index == -1) error(11);
+        emit(STO, 0, symbol_table[index].modifier);
 
         *token = get_token(ifp, properties);
     }
@@ -159,12 +160,13 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         *token = get_token(ifp, properties);
 
         if(*token != identsym) error(4);
+        index = getsymbol(properties->id);
+        if(index == -1) error(11);
+        if(symbol_table[index].kind == 2)
+            emit(LOD, 0, symbol_table[index].modifier);
 
-        if(symbol_table[getsymbol(properties->id)].kind == 2)
-            emit(LOD, 0, symbol_table[getsymbol(properties->id)].modifier);
-
-        if(symbol_table[getsymbol(properties->id)].kind == 1)
-            emit(LIT, 0, symbol_table[getsymbol(properties->id)].num);
+        if(symbol_table[index].kind == 1)
+            emit(LIT, 0, symbol_table[index].num);
 
         emit(SIO, 0, 0);
         *token = get_token(ifp, properties);
@@ -247,7 +249,9 @@ void term(FILE* ifp, tok_prop *properties, token_type *token){
 
 void factor(FILE* ifp, tok_prop *properties, token_type *token){
     if(*token == identsym){
-        emit(LOD, 0, symbol_table[getsymbol(properties->id)].modifier);
+        int index = getsymbol(properties->id);
+        if(index == -1) error(11);
+        emit(LOD, 0, symbol_table[index].modifier);
         *token = get_token(ifp, properties);
     }
     else if(*token == numbersym){
