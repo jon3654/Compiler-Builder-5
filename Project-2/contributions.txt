@@ -1,1 +1,2 @@
 Devin Barron: Wrote get_token.c, handled most errors, made small changes to logic in parser, wrote "incorrect" files, handled some of the intermediate code generation
+Christian Acosta: Created "correct" pl0 and pm0 files, helped with keyword handling in parser, assisted with program testing.
