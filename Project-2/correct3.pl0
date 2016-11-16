@@ -1,0 +1,11 @@
+const z = 100;
+var a, b;
+begin
+  a := z;
+  b := 0;
+  while a > 0 do
+    begin
+      a := a - b;
+      b := b + 1;
+    end
+end.
