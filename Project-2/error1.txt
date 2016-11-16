@@ -1,0 +1,2 @@
+
+Error number 3, identifier must be followed by =
