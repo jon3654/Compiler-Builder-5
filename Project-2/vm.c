@@ -39,8 +39,6 @@ templev, end;
     stack[2]=0;
     stack[3]=0;
 
-    printf("%s\n", file);
-
 	//Creates FILE pointer ifp, then opens it to the filename given by argv[1] (mcode.pm0 in our case) for reading only.
     int filecount = 0;
     int exists = 1;
