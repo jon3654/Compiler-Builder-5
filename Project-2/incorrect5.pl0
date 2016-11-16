@@ -1,0 +1,6 @@
+const a=;
+var x;
+begin
+	x := 5;
+	a := x;
+end.

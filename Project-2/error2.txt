@@ -1,0 +1,2 @@
+
+Error number 12, assignment to constant or procedure is not allowed
