@@ -167,6 +167,15 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         emit(SIO, 0, 0);
         *token = get_token(ifp, properties);
     }
+    
+	 else if(*token == elsesym){
+		 
+        *token = get_token(ifp, properties);
+        ctemp=cx; // Temporarily saves the code index
+        emit(JPC, 0, 0);
+        statement(ifp, properties, token);
+        code[ctemp].m=cx; // Change JPC 0 0 to JPC 0 cx
+    }
 }
 
 void condition(FILE* ifp, tok_prop *properties, token_type *token){
