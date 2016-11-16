@@ -359,7 +359,6 @@ int *in, int *hlt, int *pc, int *bp, int *sp)
 	        break;
 
 	    default: //Error
-            return;
 	    	printf("\n\nERR: Unknown opcode %d\n\n",opcode);
 	}
 }
