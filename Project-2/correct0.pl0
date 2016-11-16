@@ -1,0 +1,10 @@
+var x, y;
+begin
+  x := 4;
+  read y;
+  if y > x then
+y := y + 1;
+  else
+y := x;
+  write y;
+end.
