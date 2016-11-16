@@ -25,13 +25,15 @@ typedef struct instr {
     } instruction;
 
 // Function prototypes
-void execute(int opcode, int level, int modifier, char *str, int *lcheck, int *mcheck, int *outcheck, int *out, int *inpcheck, int *in, int *hlt, int *pc, int *bp, int *sp);
+void execute(int opcode, int level, int modifier, char *str, int *lcheck, int *mcheck, int *outcheck, int *out, int *inpcheck, 
+int *in, int *hlt, int *pc, int *bp, int *sp);
 int base(int level, int b);
 
 int vm(char* file)
 {
     // Declare variables
-    int i, hlt=0, check=1, counter=0, sp=0, bp=1, pc=0, ir=0, lcheck, mcheck, outcheck=0, out, inpcheck=1, in, temp, tempmod, templev, end;
+    int i, hlt=0, check=1, counter=0, sp=0, bp=1, pc=0, ir=0, lcheck, mcheck, outcheck=0, out, inpcheck=1, in, temp, tempmod, 
+templev, end;
     char str[3];
     stack[1]=0;
     stack[2]=0;
@@ -113,7 +115,8 @@ int vm(char* file)
         tempmod=all[pc].m;
         // Store a temporary level
         templev=all[pc].l;
-        execute(all[pc].op, all[pc].l, all[pc].m, str, &lcheck, &mcheck, &outcheck, &out, &inpcheck, &in, &hlt, &pc, &bp, &sp);
+        execute(all[pc].op, all[pc].l, all[pc].m, str, &lcheck, &mcheck, &outcheck, &out, &inpcheck, &in, &hlt, &pc, &bp, 
+&sp);
         // Check if the modifier should be displayed in the output
         if(!mcheck)
         {
@@ -174,7 +177,8 @@ int vm(char* file)
     return 0;
 }
 
-void execute(int opcode, int level, int modifier, char *str, int *lcheck, int *mcheck, int *outcheck, int *out, int *inpcheck, int *in, int *hlt, int *pc, int *bp, int *sp)
+void execute(int opcode, int level, int modifier, char *str, int *lcheck, int *mcheck, int *outcheck, int *out, int *inpcheck, 
+int *in, int *hlt, int *pc, int *bp, int *sp)
 {
 
     // Increment the program counter
@@ -355,7 +359,6 @@ void execute(int opcode, int level, int modifier, char *str, int *lcheck, int *m
 	        break;
 
 	    default: //Error
-            return;
 	    	printf("\n\nERR: Unknown opcode %d\n\n",opcode);
 	}
 }

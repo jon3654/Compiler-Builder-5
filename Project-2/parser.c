@@ -84,7 +84,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
     if(*token == identsym){
         *token = get_token(ifp, properties);
         index = getsymbol(properties->id);
-
+        if(index == -1) error(11);
         if(symbol_table[index].kind != 2) error(12); // Assignment to constant or procedure is not allowed
 
         if (*token != becomessym) error(13); // Assignment operator expected
