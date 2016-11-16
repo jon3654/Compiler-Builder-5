@@ -1,0 +1,13 @@
+const a = 2, b = 3;
+var x, y, z;
+begin
+  x := a;
+  y := b;
+  z := 0;
+  while z < 50 do
+    begin
+        z := x * y;
+        x := y + 1;
+        y := x + 1
+    end
+end.
