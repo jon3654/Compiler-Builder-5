@@ -4,6 +4,7 @@
 #include "tokens.h"
 #include "generator.h"
 #include "symbol.h"
+#include "vm.h"
 
 int main(int argc, char* argv[]){
     // Open the input/output file
@@ -23,5 +24,9 @@ int main(int argc, char* argv[]){
 
     // Generate intermediate code
     generate(ofp);
+    fclose(ofp);
+    vm( argv[2]);
+
+    fclose(ifp);
     return 0;
 }
