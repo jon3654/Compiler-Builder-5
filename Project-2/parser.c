@@ -178,6 +178,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         statement(ifp, properties, token);
         code[ctemp].m=cx; // Change JPC 0 0 to JPC 0 cx
     }
+    else if(*token != endsym) error(7); // Statement expected
 }
 
 void condition(FILE* ifp, tok_prop *properties, token_type *token){
