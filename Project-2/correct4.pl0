@@ -1,0 +1,15 @@
+var a, b, c;
+procedure increment;
+begin
+  a := a + 1;
+  b := b + 2;
+end;
+begin
+  c := 0;
+  d := 0;
+  while d < 100 do
+    begin
+      c := a + b;
+      call increment;
+    end
+end.
