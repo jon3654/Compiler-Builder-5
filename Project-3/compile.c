@@ -25,8 +25,9 @@ int main(int argc, char* argv[]){
     // Generate intermediate code
     generate(ofp);
     fclose(ofp);
-    vm( argv[2]);
-
+    if(argc > 3)
+        if(strcmp(argv[3], "--st") == 0)
+            vm( argv[2]);
     fclose(ifp);
     return 0;
 }
