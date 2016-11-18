@@ -49,7 +49,7 @@ templev, end;
     FILE *ofp;
     while (exists == 1){
         
-        char str[filecount%10];
+        char str[(filecount+2)%10];
         sprintf(str,"%d",filecount);
         strcat(name, str);
         strcat(name, ".txt");
