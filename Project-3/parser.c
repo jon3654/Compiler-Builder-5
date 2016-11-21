@@ -6,6 +6,7 @@
 #include "symbol.h"
 #include <string.h>
 
+int level = 0;  // global variable to keep track of levels 
 // main parser functions
 void program(FILE* ifp, tok_prop *properties){
     token_type token = get_token(ifp, properties);
@@ -58,20 +59,23 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
 
     }
     emit(INC, 0, 4+numvars);
-    // we don't need procedures for tiny PL/0
+    
     while(*token == procsym){
         *token = get_token(ifp, properties);
         if(*token != identsym) error(4);
-
+        
+        put_symbol(3, properties->id, 0,0,0);
+        
         *token = get_token(ifp, properties);
         if(*token != semicolonsym) error(5);
 
         *token = get_token(ifp, properties);
         block(ifp, properties, token);
-
+        
         if(*token != semicolonsym) error(5);
         *token = get_token(ifp, properties);
     }
+    
     statement(ifp, properties, token);
 }
 

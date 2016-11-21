@@ -25,8 +25,6 @@ int main(int argc, char* argv[]){
     // Generate intermediate code
     generate(ofp);
     fclose(ofp);
-    vm( argv[2]);
-
     fclose(ifp);
     return 0;
 }
