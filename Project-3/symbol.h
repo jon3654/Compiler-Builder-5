@@ -17,5 +17,6 @@ struct symbol symbol_table[MAX_SYMBOL_TABLE_SIZE];
 int getsymbol(char* name);
 void put_symbol(int kind, char* name, int num, int level, int modifier);
 void init_array();
+void print_array(); // for debuggin
 
 #endif

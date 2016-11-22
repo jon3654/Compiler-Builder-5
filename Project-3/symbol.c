@@ -45,3 +45,15 @@ int getsymbol(char *name){
         
     return i;
 }
+
+void print_array(){
+    int found = 0;
+    int i = 0;
+    while(found == 0){
+        if(strcmp(symbol_table[i].name, "0") == 0)
+            found = 1;
+        else
+            printf("%d %s %d %d %d\n", symbol_table[i].kind, symbol_table[i].name, symbol_table[i].num, symbol_table[i].level, symbol_table[i].modifier);
+        i++;
+    }
+}

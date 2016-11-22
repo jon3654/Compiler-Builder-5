@@ -48,7 +48,7 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
             if(*token != identsym) error(4);
 
             numvars++;
-            put_symbol(2, properties->id, 0, 0, 3 + numvars);
+            put_symbol(2, properties->id, 0, level, 3 + numvars);
 
             *token = get_token(ifp, properties);
         }while(*token == commasym);
@@ -64,7 +64,7 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
         *token = get_token(ifp, properties);
         if(*token != identsym) error(4);
         
-        put_symbol(3, properties->id, 0,0,0);
+        put_symbol(3, properties->id, 0,level,cx);
         
         *token = get_token(ifp, properties);
         if(*token != semicolonsym) error(5);
@@ -102,7 +102,13 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
     else if(*token == callsym){
         *token = get_token(ifp, properties);
         if(*token != identsym) error(14);
-
+        
+        int index = getsymbol(properties->id);
+        
+        if(index == -1) error(11);
+        level++;
+        emit(CAL, level, symbol_table[index].modifier);
+        
         *token = get_token(ifp, properties);
     }
 
