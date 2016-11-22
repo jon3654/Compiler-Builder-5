@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "parser.h"
 #include "tokens.h"
 #include "generator.h"
@@ -24,8 +25,8 @@ int main(int argc, char* argv[]){
     // Generate intermediate code
     generate(ofp);
     fclose(ofp);
-    if(argc > 3 && strcmp(argv[3], "--st" == 0))
-        vm(argc[2]);
+    if(argc > 3 && strcmp(argv[3], "--st") == 0)
+        vm(argv[2]);
     fclose(ifp);
     return 0;
 }
