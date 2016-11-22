@@ -1,6 +1,6 @@
 # -*- MakeFile -*-
 CFLAGS = -g -Wall -Wextra
-objects = compile.o generator.o get_token.o parser.o symbol.o vm.o
+objects = compile.o generator.o get_token.o parser.o symbol.o
 
 compile : $(objects)
 	gcc $(CFLAGS) -o compile $(objects)
