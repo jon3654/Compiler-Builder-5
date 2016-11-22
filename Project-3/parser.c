@@ -34,7 +34,7 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
             *token = get_token(ifp, properties);
             if(*token != numbersym) error(2);
 
-            put_symbol(1, properties->id, properties->val, 0, 0);
+            put_symbol(1, properties->id, properties->val, level, 0);
 
             *token = get_token(ifp, properties);
         } while(*token == commasym);
