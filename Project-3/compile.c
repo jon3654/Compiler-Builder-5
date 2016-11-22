@@ -20,7 +20,7 @@ int main(int argc, char* argv[]){
     init_array();
     // Parse the input
     program(ifp, &properties);
-
+    
     // Generate intermediate code
     generate(ofp);
     fclose(ofp);

@@ -16,7 +16,15 @@ void put_symbol(int kind, char *name, int num, int level, int modifier){
     int found = 0;
     int i = 0;
     while(found == 0){
-        if(strcmp(symbol_table[i].name, name) == 0 || strcmp(symbol_table[i].name, "0") == 0)
+        if(strcmp(symbol_table[i].name, "0") == 0)
+            found = 1;
+        // error if identifier name and level are the same
+        // need to add code in parser to stop program
+        else if(strcmp(symbol_table[i].name, name) == 0 && symbol_table[i].level == level){
+            printf("Error: Duplicate identifier %s\n", symbol_table[i].name);
+            return;
+        }
+        else if(strcmp(symbol_table[i].name, name) == 0)
             found = 1;
         else
             i++;
