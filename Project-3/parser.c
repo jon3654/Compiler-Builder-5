@@ -29,7 +29,11 @@ void program(FILE* ifp, tok_prop *properties){
         printf("\nNo errors, program is syntactically correct\n");
     }
     // removes call to jump if no procedures are found in the code
-    if(proc_exists == 0) no_proc();
+    // and moves inc instruction back to the beginning
+    if(proc_exists == 0){
+        no_proc();
+        place_inc();
+    }
     else code[ctemp1].m = instr_gen;
     
         
@@ -37,8 +41,6 @@ void program(FILE* ifp, tok_prop *properties){
 }
 
 void block(FILE* ifp, tok_prop *properties, token_type *token){
-    proc_dec = 1;   // flags proc_dec so no machine code is emitted during procedure declaration
-    
     if(*token == constsym){
        do{
             *token = get_token(ifp, properties);
@@ -77,15 +79,8 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
 
         *token = get_token(ifp, properties);
     }
-    if(level == 0 && proc_dec == 1){
-        wait_dec = 1;
-        numvars1 = numvars;
-    }
-    else{
-        emit(INC, 0, 4+numvars);
-        if(proc_dec == 1) instr_gen++;
-    }
-    
+    emit(INC, 0, 4+numvars);
+
     int num_proc = 0; // keeps track of how many proc are declared so level can be reset
     while(*token == procsym){
         proc_exists = 1;
@@ -105,13 +100,11 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
         if(*token != semicolonsym) error(5);
         *token = get_token(ifp, properties);
     }
+    
     level = level - num_proc;  // resets level
     
     statement(ifp, properties, token);
     proc_dec = 0;
-    if(wait_dec == 1){
-        emit(INC, 0, 4+numvars1);
-    }
 }
 
 void statement(FILE* ifp, tok_prop *properties, token_type *token){
