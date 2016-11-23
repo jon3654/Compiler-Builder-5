@@ -7,9 +7,12 @@
 #include <string.h>
 
 int level = 0;  // global variable to keep track of levels
-int proc_dec = 0; // global variable used during procedure declaration to prevent emitting code
+int proc_dec = 1; // global variable used during procedure declaration to prevent emitting code
 int instr_gen = 0;  // keeps track of how many instruction were generated before main
 int proc_exists = 0;    // is 1 if procedure is in program. otherwise flags parser to delete JMP call at the end of the parser program
+int wait_dec = 0;   // flags whether or not a global variable declaration should have the stack initialized until after a procedure
+int numvars1 = 0;   // used to temporarily store the number of variables in a variable declaration made before a procedure declaration and before main
+
 // main parser functions
 
 void program(FILE* ifp, tok_prop *properties){
@@ -25,7 +28,7 @@ void program(FILE* ifp, tok_prop *properties){
         emit(SIO, 0, 2);
         printf("\nNo errors, program is syntactically correct\n");
     }
-    // removes call to jump
+    // removes call to jump if no procedures are found in the code
     if(proc_exists == 0) no_proc();
     else code[ctemp1].m = instr_gen;
     
@@ -74,8 +77,14 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
 
         *token = get_token(ifp, properties);
     }
-    emit(INC, 0, 4+numvars);
-    if(proc_dec == 1) instr_gen++;
+    if(level == 0 && proc_dec == 1){
+        wait_dec = 1;
+        numvars1 = numvars;
+    }
+    else{
+        emit(INC, 0, 4+numvars);
+        if(proc_dec == 1) instr_gen++;
+    }
     
     int num_proc = 0; // keeps track of how many proc are declared so level can be reset
     while(*token == procsym){
@@ -100,6 +109,9 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
     
     statement(ifp, properties, token);
     proc_dec = 0;
+    if(wait_dec == 1){
+        emit(INC, 0, 4+numvars1);
+    }
 }
 
 void statement(FILE* ifp, tok_prop *properties, token_type *token){
