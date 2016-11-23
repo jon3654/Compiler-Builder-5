@@ -14,10 +14,6 @@ void expression(FILE* ifp, tok_prop *properties, token_type *token);
 void term(FILE* ifp, tok_prop *properties, token_type *token);
 void factor(FILE* ifp, tok_prop *properties, token_type *token);
 void error(int num);
-void number();
-void ident();
-void digit();
-void letter();
-
+int is_statement(token_type token);
 
 #endif // PARSER_H_INCLUDED

@@ -23,3 +23,14 @@ void generate(FILE* ofp){
         fprintf(ofp, "%d %d %d\n", code[i].op, code[i].l, code[i].m);
     }
 }
+
+// removes JMP instruction if no procedures are found in the program
+void no_proc(){
+    int i;
+    code[0] = code[1];
+    for(i=1; i<cx; i++)
+    {
+        code[i] = code[i+1];
+    }
+    cx--;
+}

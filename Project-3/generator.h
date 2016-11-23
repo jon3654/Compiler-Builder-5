@@ -11,6 +11,7 @@ enum ar_log_operation {RET = 0, NEG, ADD, SUB, MUL, DIV, ODD, MOD, EQL, NEQ, LSS
 // Function prototypes
 void emit(int op, int level, int modifier);
 void generate(FILE* ofp);
+void no_proc();
 
 typedef struct code_pm0 {
     int op;
