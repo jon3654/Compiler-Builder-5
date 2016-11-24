@@ -107,7 +107,7 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
 
         *token = get_token(ifp, properties);
         block(ifp, properties, token);
-        printf("%d\n", level);
+        
         if(*token != semicolonsym) error(5);
         *token = get_token(ifp, properties);
         if(level > 1)
