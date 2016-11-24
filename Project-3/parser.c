@@ -18,6 +18,7 @@ void program(FILE* ifp, tok_prop *properties){
     token_type token = get_token(ifp, properties);
     
     int ctemp1 = cx;    // keeps track of where the JMP instruction to be emitted is stored
+
     emit(JMP, 0, 0);
     instr_gen++;
 
@@ -89,14 +90,17 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
     }
     
     while(*token == procsym){
+        proc_exists = 1;
+        level++;
+        int do_emit = 0;
+        int tmp_cx = cx;
+
         if(level > 1){
             emit(JMP, 0, 0);
             instr_gen++;
+            do_emit = 1;
         }
-        int tmp_cx = cx;
         
-        proc_exists = 1;
-        level++;
         *token = get_token(ifp, properties);
         if(*token != identsym) error(4);
         
@@ -110,13 +114,16 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
         
         if(*token != semicolonsym) error(5);
         *token = get_token(ifp, properties);
-        if(level > 1)
-            code[tmp_cx].m = cx;
+        if(do_emit == 1){
+            code[tmp_cx].m = instr_gen;
+            printf("%d\n", code[tmp_cx].m);
+        }
     }
-    
+
     statement(ifp, properties, token);
-    level = 0;
-    proc_dec = 0;
+    level--;
+    if(level == 0)
+        proc_dec = 0;
 }
 
 void statement(FILE* ifp, tok_prop *properties, token_type *token){
@@ -165,7 +172,6 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         }
         if(*token == identsym || *token == callsym || *token == beginsym || *token == ifsym || *token == whilesym) error(10); // Missing semicolon between statements ??????
         if (*token != endsym) error(17); // Semicolon or } expected
-        printf("%d\n", level);
         if(level > 0){
             emit(OPR, 0, 0);    // emits machine code for return at the end of procedure
             if(proc_dec == 1) instr_gen++;
