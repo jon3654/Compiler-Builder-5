@@ -10,8 +10,7 @@ int level = 0;  // global variable to keep track of levels
 int proc_dec = 1; // global variable used during procedure declaration to prevent emitting code
 int instr_gen = 0;  // keeps track of how many instruction were generated before main
 int proc_exists = 0;    // is 1 if procedure is in program. otherwise flags parser to delete JMP call at the end of the parser program
-int wait_dec = 0;   // flags whether or not a global variable declaration should have the stack initialized until after a procedure
-int numvars1 = 0;   // used to temporarily store the number of variables in a variable declaration made before a procedure declaration and before main
+int swap = 0;
 
 // main parser functions
 
@@ -32,9 +31,13 @@ void program(FILE* ifp, tok_prop *properties){
     // and moves inc instruction back to the beginning
     if(proc_exists == 0){
         no_proc();
-        place_inc();
     }
-    else code[ctemp1].m = instr_gen;
+
+    else{
+        if(swap > 0)
+            place_inc(swap, instr_gen);
+        code[ctemp1].m = instr_gen-1;
+    }
     
         
     
@@ -81,30 +84,38 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
     }
     emit(INC, 0, 4+numvars);
     if(proc_dec == 1) instr_gen++;
-
-    int num_proc = 0; // keeps track of how many proc are declared so level can be reset
+    if(level == 0){
+        swap++;
+    }
+    
     while(*token == procsym){
+        if(level > 1){
+            emit(JMP, 0, 0);
+            instr_gen++;
+        }
+        int tmp_cx = cx;
+        
         proc_exists = 1;
         level++;
-        num_proc++;
         *token = get_token(ifp, properties);
         if(*token != identsym) error(4);
         
-        put_symbol(3, properties->id, 0, level, cx+1);
+        put_symbol(3, properties->id, 0, level, cx);
         
         *token = get_token(ifp, properties);
         if(*token != semicolonsym) error(5);
 
         *token = get_token(ifp, properties);
         block(ifp, properties, token);
-        
+        printf("%d\n", level);
         if(*token != semicolonsym) error(5);
         *token = get_token(ifp, properties);
+        if(level > 1)
+            code[tmp_cx].m = cx;
     }
     
-    level = level - num_proc;  // resets level
-    
     statement(ifp, properties, token);
+    level = 0;
     proc_dec = 0;
 }
 
@@ -154,6 +165,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         }
         if(*token == identsym || *token == callsym || *token == beginsym || *token == ifsym || *token == whilesym) error(10); // Missing semicolon between statements ??????
         if (*token != endsym) error(17); // Semicolon or } expected
+        printf("%d\n", level);
         if(level > 0){
             emit(OPR, 0, 0);    // emits machine code for return at the end of procedure
             if(proc_dec == 1) instr_gen++;
@@ -172,7 +184,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         emit(JPC, 0, 0);
         if(proc_dec == 1) instr_gen++;
         statement(ifp, properties, token);
-        code[ctemp].m=cx; // Change JPC 0 0 to JPC 0 cx
+        code[ctemp].m = cx; // Change JPC 0 0 to JPC 0 cx
     }
 
     else if(*token == whilesym){
@@ -235,7 +247,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         if(proc_dec == 1) instr_gen++;
          
         statement(ifp, properties, token);
-        code[ctemp].m=cx; // Change JPC 0 0 to JPC 0 cx
+        code[ctemp].m = cx; // Change JPC 0 0 to JPC 0 cx
     }
 }
 
