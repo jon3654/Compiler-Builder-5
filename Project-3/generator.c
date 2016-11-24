@@ -9,9 +9,9 @@ void emit(int op, int level, int modifier){
         error(30);
     else
     {
-        code[cx].op=op;
-        code[cx].l=level;
-        code[cx].m=modifier;
+        code[cx].op = op;
+        code[cx].l = level;
+        code[cx].m = modifier;
         cx++;
     }
 }
@@ -26,28 +26,21 @@ void generate(FILE* ofp){
 
 
 // replaces INC instruction if no procedures are found in the program
-void place_inc(){
-    int i = 0;
-    while(code[i].op == JMP || code[i].l > 0){
-        i++;
-    }
-    printf("%d %d %d\n", code[i].op, code[i].l, code[i].m);
-    int j;
-    pm0 tmp = code[i];
-    code[i] = code[0];
-    code[0] = tmp;
-    printf("%d %d %d\n", tmp.op, tmp.l, tmp.m);
-    for(j = 1; j < i; j++){
-        tmp = code[j];
-        code[j] = code[j+1];
-        code[j+1] = tmp;
+void place_inc(int swap, int gen){
+    pm0 temp;
+    for(int j = 0; j < swap; j++){
+        for(int i = 1; i < gen-1; i++){
+            temp = code[i];
+            code[i] = code[i+1];
+            code[i+1] = temp;
+        }
     }
 }
 
 void dec_op(){
     int i = 1;
     while(code[i].op != 0){
-        if(code[i].op == JMP || code[i].op == JPC || code[i].op == LOD || code[i].op == STO){
+        if(code[i].op == JMP || code[i].op == JPC || code[i].op == CAL){
             code[i].m--;
         }
         i++;
