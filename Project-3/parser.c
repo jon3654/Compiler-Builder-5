@@ -104,7 +104,7 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
         *token = get_token(ifp, properties);
         if(*token != identsym) error(4);
         
-        put_symbol(3, properties->id, 0, level, cx);
+        put_symbol(3, properties->id, 0, level, cx-1);
         
         *token = get_token(ifp, properties);
         if(*token != semicolonsym) error(5);
@@ -116,7 +116,6 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
         *token = get_token(ifp, properties);
         if(do_emit == 1){
             code[tmp_cx].m = instr_gen;
-            printf("%d\n", code[tmp_cx].m);
         }
     }
 
@@ -145,7 +144,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         emit(STO, 0, symbol_table[index].modifier);
         if(proc_dec == 1) instr_gen++;
     }
-    // no calls in Tiny PL/0
+
     else if(*token == callsym){
         *token = get_token(ifp, properties);
         
