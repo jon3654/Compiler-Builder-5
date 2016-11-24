@@ -80,6 +80,7 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
         *token = get_token(ifp, properties);
     }
     emit(INC, 0, 4+numvars);
+    if(proc_dec == 1) instr_gen++;
 
     int num_proc = 0; // keeps track of how many proc are declared so level can be reset
     while(*token == procsym){
