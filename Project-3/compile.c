@@ -6,6 +6,7 @@
 #include "generator.h"
 #include "symbol.h"
 #include "vm.h"
+
 int main(int argc, char* argv[]){
     // Open the input/output file
     FILE* ifp = fopen(argv[1], "r");
