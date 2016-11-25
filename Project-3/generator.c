@@ -25,7 +25,7 @@ void generate(FILE* ofp){
 }
 
 
-// replaces INC instruction if no procedures are found in the program
+// places INC instruction at end of procedure code if procedures are found in the program
 void place_inc(int swap, int gen){
     pm0 temp;
     for(int j = 0; j < swap; j++){
@@ -37,6 +37,7 @@ void place_inc(int swap, int gen){
     }
 }
 
+// decrements OP code of modifier on JMP JPC and CAL if no procedures are in the program
 void dec_op(){
     int i = 1;
     while(code[i].op != 0){

@@ -10,7 +10,7 @@ int level = 0;  // global variable to keep track of levels
 int proc_dec = 1; // global variable used during procedure declaration to prevent emitting code
 int instr_gen = 0;  // keeps track of how many instruction were generated before main
 int proc_exists = 0;    // is 1 if procedure is in program. otherwise flags parser to delete JMP call at the end of the parser program
-int swap = 0;
+int swap = 0;   // keeps track of how many instructions before procedure(s) need to be moved to the position following the procedure(s)
 
 // main parser functions
 
@@ -19,7 +19,7 @@ void program(FILE* ifp, tok_prop *properties){
     
     int ctemp1 = cx;    // keeps track of where the JMP instruction to be emitted is stored
 
-    emit(JMP, 0, 0);
+    emit(JMP, 0, 0);    // tentative call to JMP, removed if no procedures are found
     instr_gen++;
 
     block(ifp, properties, &token);
@@ -28,12 +28,13 @@ void program(FILE* ifp, tok_prop *properties){
         emit(SIO, 0, 2);
         printf("\nNo errors, program is syntactically correct\n");
     }
+    
     // removes call to jump if no procedures are found in the code
-    // and moves inc instruction back to the beginning
     if(proc_exists == 0){
         no_proc();
     }
 
+    // else
     else{
         if(swap > 0)
             place_inc(swap, instr_gen);
@@ -92,13 +93,13 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
     while(*token == procsym){
         proc_exists = 1;
         level++;
-        int do_emit = 0;
+        int do_emit = 0;    // tracks if an emit is going to be done for JMP
         int tmp_cx = cx;
 
         if(level > 1){
             emit(JMP, 0, 0);
             instr_gen++;
-            do_emit = 1;
+            do_emit = 1;    // if emit is to be done, flags true
         }
         
         *token = get_token(ifp, properties);
@@ -114,6 +115,8 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
         
         if(*token != semicolonsym) error(5);
         *token = get_token(ifp, properties);
+        
+        // alters JMP instruction to the correct PM line number if JMP was emitted
         if(do_emit == 1){
             code[tmp_cx].m = instr_gen;
         }
@@ -121,6 +124,8 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
 
     statement(ifp, properties, token);
     level--;
+    
+    // sets proc_dec to 0 if no procedure code is being emitted ie we're at level 0
     if(level == 0)
         proc_dec = 0;
 }
