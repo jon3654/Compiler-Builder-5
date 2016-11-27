@@ -28,8 +28,9 @@ void generate(FILE* ofp){
 // places INC instruction at end of procedure code if procedures are found in the program
 void place_inc(int swap, int gen){
     pm0 temp;
-    for(int j = 0; j < swap; j++){
-        for(int i = 1; i < gen-1; i++){
+    int i, j;
+    for(j = 0; j < swap; j++){
+        for(i = 1; i < gen-1; i++){
             temp = code[i];
             code[i] = code[i+1];
             code[i+1] = temp;
