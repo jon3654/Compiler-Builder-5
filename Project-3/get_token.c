@@ -23,7 +23,7 @@ token_type get_token(FILE* ifp, tok_prop *properties){
     current=fgetc(ifp);
 
     // Skip white space
-    while(current == ' ' || current == '\n' || current == '\t')
+    while(isspace(current))
     {
         current=fgetc(ifp);
         // Check for end of file
