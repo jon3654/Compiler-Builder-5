@@ -21,7 +21,7 @@ void program(FILE* ifp, tok_prop *properties){
 
     emit(JMP, 0, 0);    // tentative call to JMP, removed if no procedures are found
     instr_gen++;
-
+    
     block(ifp, properties, &token);
     if(token != periodsym) error(9);
     else {
@@ -146,7 +146,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
 
         *token = get_token(ifp, properties);
         expression(ifp, properties, token);
-        emit(STO, 0, symbol_table[index].modifier);
+        emit(STO, level, symbol_table[index].modifier);
         if(proc_dec == 1) instr_gen++;
     }
 
@@ -236,7 +236,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         index = getsymbol(properties->id);
         if(index == -1) error(11);
         if(symbol_table[index].kind == 2){
-            emit(LOD, 0, symbol_table[index].modifier);
+            emit(LOD, level, symbol_table[index].modifier);
             if(proc_dec == 1) instr_gen++;
         }
 
