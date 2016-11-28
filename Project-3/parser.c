@@ -7,7 +7,6 @@
 #include <string.h>
 
 int level = 0;  // global variable to keep track of levels
-int proc_dec = 1; // global variable used during procedure declaration to prevent emitting code
 int instr_gen = 0;  // keeps track of how many instruction were generated before main
 int proc_exists = 0;    // is 1 if procedure is in program. otherwise flags parser to delete JMP call at the end of the parser program
 int swap = 0;   // keeps track of how many instructions before procedure(s) need to be moved to the position following the procedure(s)
@@ -85,7 +84,7 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
         *token = get_token(ifp, properties);
     }
     emit(INC, 0, 4+numvars);
-    if(proc_dec == 1 || level > 0) instr_gen++;
+    if(level > 0) instr_gen++;
     if(level == 0){
         swap++;
     }
@@ -127,10 +126,6 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
 
     statement(ifp, properties, token);
     level--;
-    
-    // sets proc_dec to 0 if no procedure code is being emitted ie we're at level 0
-    if(level == 0)
-        proc_dec = 0;
 }
 
 void statement(FILE* ifp, tok_prop *properties, token_type *token){
@@ -150,7 +145,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         *token = get_token(ifp, properties);
         expression(ifp, properties, token);
         emit(STO, level, symbol_table[index].modifier);
-        if(proc_dec == 1 || level > 0) instr_gen++;
+        if(level > 0) instr_gen++;
     }
 
     else if(*token == callsym){
@@ -163,7 +158,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         if(index == -1) error(11);
         
         emit(CAL, level, symbol_table[index].modifier);
-        if(proc_dec == 1 || level > 0) instr_gen++;
+        if(level > 0) instr_gen++;
         
         *token = get_token(ifp, properties);
     }
@@ -181,7 +176,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         if (*token != endsym) error(17); // Semicolon or } expected
         if(level > 0){
             emit(OPR, 0, 0);    // emits machine code for return at the end of procedure
-            if(proc_dec == 1 || level > 0) instr_gen++;
+            if(level > 0) instr_gen++;
         }
         
         *token = get_token(ifp, properties);
@@ -195,7 +190,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         *token = get_token(ifp, properties);
         ctemp=cx; // Temporarily saves the code index
         emit(JPC, 0, 0);
-        if(proc_dec == 1 || level > 0) instr_gen++;
+        if(level > 0) instr_gen++;
         statement(ifp, properties, token);
         code[ctemp].m = cx; // Change JPC 0 0 to JPC 0 cx
     }
@@ -208,26 +203,26 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
 
         cx2=cx; // Temporarily saves second code index
         emit(JPC, 0, 0);
-        if(proc_dec == 1 || level > 0) instr_gen++;
+        if(level > 0) instr_gen++;
         if(*token != dosym) error(18); // Do expected
         *token = get_token(ifp, properties);
 
         statement(ifp, properties, token);
         emit(JMP, 0, cx1);
-        if(proc_dec == 1 || level > 0) instr_gen++;
+        if(level > 0) instr_gen++;
         code[cx2].m=cx; // JPC 0 0 to JPC 0 cx
     }
 
     else if(*token == readsym){
         emit(SIO, 0, 1);
-        if(proc_dec == 1 || level > 0) instr_gen++;
+        if(level > 0) instr_gen++;
         
         *token = get_token(ifp, properties);
         if(*token != identsym) error(4);
         index = getsymbol(properties->id);
         if(index == -1) error(11);
         emit(STO, 0, symbol_table[index].modifier);
-        if(proc_dec == 1 || level > 0) instr_gen++;
+        if(level > 0) instr_gen++;
         
         *token = get_token(ifp, properties);
     }
@@ -240,15 +235,15 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         if(index == -1) error(11);
         if(symbol_table[index].kind == 2){
             emit(LOD, level, symbol_table[index].modifier);
-            if(proc_dec == 1 || level > 0) instr_gen++;
+            if(level > 0) instr_gen++;
         }
 
         if(symbol_table[index].kind == 1){
             emit(LIT, 0, symbol_table[index].num);
-            if(proc_dec == 1 || level > 0) instr_gen++;
+            if(level > 0) instr_gen++;
         }
         emit(SIO, 0, 0);
-        if(proc_dec == 1 || level > 0) instr_gen++;
+        if(level > 0) instr_gen++;
         *token = get_token(ifp, properties);
     }
 
@@ -257,7 +252,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         *token = get_token(ifp, properties);
         ctemp=cx; // Temporarily saves the code index
         emit(JPC, 0, 0);
-        if(proc_dec == 1 || level > 0) instr_gen++;
+        if(level > 0) instr_gen++;
          
         statement(ifp, properties, token);
         code[ctemp].m = cx; // Change JPC 0 0 to JPC 0 cx
@@ -277,7 +272,7 @@ void condition(FILE* ifp, tok_prop *properties, token_type *token){
         expression(ifp, properties, token);
         
         emit(OPR, 0, tmp);
-        if(proc_dec == 1 || level > 0) instr_gen++;
+        if(level > 0) instr_gen++;
     }
 }
 
@@ -291,7 +286,7 @@ void expression(FILE* ifp, tok_prop *properties, token_type *token){
         if(addop == minussym)
         {
             emit(OPR, 0, NEG);
-            if(proc_dec == 1 || level > 0) instr_gen++;
+            if(level > 0) instr_gen++;
         }
     }
     else
@@ -305,12 +300,12 @@ void expression(FILE* ifp, tok_prop *properties, token_type *token){
         if(addop == plussym)
         {
             emit(OPR, 0, ADD);
-            if(proc_dec == 1 || level > 0) instr_gen++;
+            if(level > 0) instr_gen++;
         }
         else
         {
             emit(OPR, 0, SUB);
-            if(proc_dec == 1 || level > 0) instr_gen++;
+            if(level > 0) instr_gen++;
         }
     }
 }
@@ -326,12 +321,12 @@ void term(FILE* ifp, tok_prop *properties, token_type *token){
         if(mulop == multsym)
         {
             emit(OPR, 0, MUL);
-            if(proc_dec == 1 || level > 0) instr_gen++;
+            if(level > 0) instr_gen++;
         }
         else
         {
             emit(OPR, 0, DIV);
-            if(proc_dec == 1 || level > 0) instr_gen++;
+            if(level > 0) instr_gen++;
         }
     }
 }
@@ -341,14 +336,14 @@ void factor(FILE* ifp, tok_prop *properties, token_type *token){
         int index = getsymbol(properties->id);
         if(index == -1) error(11);
         emit(LOD, 0, symbol_table[index].modifier);
-        if(proc_dec == 1 || level > 0) instr_gen++;
+        if(level > 0) instr_gen++;
         
         *token = get_token(ifp, properties);
     }
     else if(*token == numbersym){
         *token = get_token(ifp, properties);
         emit(LIT, 0, properties->val);
-        if(proc_dec == 1 || level > 0) instr_gen++;
+        if(level > 0) instr_gen++;
     }
     else if(*token == lparentsym){
         *token = get_token(ifp, properties);
