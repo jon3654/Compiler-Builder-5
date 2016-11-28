@@ -42,15 +42,16 @@ templev, end;
 	//Creates FILE pointer ifp, then opens it to the filename given by argv[1] (mcode.pm0 in our case) for reading only.
     int filecount = 0;
     int exists = 1;
-    char name[50];
+    char name[11];
     strcpy(name, "stacktrace");
 	FILE *ifp = fopen(file,"r");
     if(ifp == NULL) return 1;
     FILE *ofp;
-    char str1[50];
     while (exists == 1){
-        sprintf(str1,"%d",filecount);
-        strcat(name, str1);
+        
+        char str[filecount%10];
+        sprintf(str,"%d",filecount);
+        strcat(name, str);
         strcat(name, ".txt");
         ofp = fopen(name,"r");
         if(ofp == NULL){
