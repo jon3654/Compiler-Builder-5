@@ -10,6 +10,7 @@ int level = 0;  // global variable to keep track of levels
 int instr_gen = 0;  // keeps track of how many instruction were generated before main
 int proc_exists = 0;    // is 1 if procedure is in program. otherwise flags parser to delete JMP call at the end of the parser program
 int swap = 0;   // keeps track of how many instructions before procedure(s) need to be moved to the position following the procedure(s)
+int num_proc = 0;   // tracks how many procedures are in a program
 
 // main parser functions
 
@@ -90,11 +91,11 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
     }
     
     int do_emit = 0;    // tracks if an emit is going to be done for JMP
-    int num_proc = 0;   // tracks how many procedures are in a program
     while(*token == procsym){
         num_proc++;
-        proc_exists = 1;
         level++;
+        proc_exists = 1;
+
         int tmp_cx = cx;
         
         // if more than one proc exist, multiple jump calls need to be made
@@ -111,17 +112,18 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
         
         *token = get_token(ifp, properties);
         if(*token != semicolonsym) error(5);
-
+        
         *token = get_token(ifp, properties);
         block(ifp, properties, token);
-        
-        if(*token != semicolonsym) error(5);
-        *token = get_token(ifp, properties);
         
         // alters JMP instruction to the correct PM line number if JMP was emitted
         if(do_emit == 1){
             code[tmp_cx].m = instr_gen;
         }
+        
+        if(*token != semicolonsym) error(5);
+        *token = get_token(ifp, properties);
+        
     }
 
     statement(ifp, properties, token);
