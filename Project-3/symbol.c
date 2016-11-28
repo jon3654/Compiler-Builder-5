@@ -35,13 +35,13 @@ void put_symbol(int kind, char *name, int num, int level, int modifier){
     symbol_table[i].num = num;
     symbol_table[i].level = level;
     symbol_table[i].modifier = modifier;
-
+    symcount++;
 }
 
 int getsymbol(char *name){
     int found = 0;
     int i = 0;
-    
+
     while(found == 0){
         if(strcmp(symbol_table[i].name, name) == 0)
             found = 1;
@@ -50,7 +50,7 @@ int getsymbol(char *name){
         else
             i++;
     }
-        
+
     return i;
 }
 
@@ -64,4 +64,22 @@ void print_array(){
             printf("%d %s %d %d %d\n", symbol_table[i].kind, symbol_table[i].name, symbol_table[i].num, symbol_table[i].level, symbol_table[i].modifier);
         i++;
     }
+}
+
+
+void delete_vars(){
+
+    while(symbol_table[symcount-1].kind != 3 && symcount>1)
+    {
+        symbol_table[symcount-1].kind = 0;
+        strcpy(symbol_table[symcount-1].name, "0");
+        symbol_table[symcount-1].level = 0;
+        symbol_table[symcount-1].modifier = 0;
+        symcount--;
+    }
+    symbol_table[symcount-1].kind = 0;
+    strcpy(symbol_table[symcount-1].name, "0");
+    symbol_table[symcount-1].level = 0;
+    symbol_table[symcount-1].modifier = 0;
+    symcount--;
 }
