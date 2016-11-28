@@ -77,9 +77,4 @@ void delete_vars(){
         symbol_table[symcount-1].modifier = 0;
         symcount--;
     }
-    symbol_table[symcount-1].kind = 0;
-    strcpy(symbol_table[symcount-1].name, "0");
-    symbol_table[symcount-1].level = 0;
-    symbol_table[symcount-1].modifier = 0;
-    symcount--;
 }
