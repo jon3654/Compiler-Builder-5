@@ -24,15 +24,10 @@ typedef struct instr {
     int m;
     } instruction;
 
-// Function prototypes
-void execute(int opcode, int level, int modifier, char *str, int *lcheck, int *mcheck, int *outcheck, int *out, int *inpcheck, 
-int *in, int *hlt, int *pc, int *bp, int *sp);
-int base(int level, int b);
-
 int vm(char* file)
 {
     // Declare variables
-    int i, hlt=0, check=1, counter=0, sp=0, bp=1, pc=0, ir=0, lcheck, mcheck, outcheck=0, out, inpcheck=1, in, temp, tempmod, 
+    int i, hlt=0, check=1, counter=0, sp=0, bp=1, pc=0, ir=0, lcheck, mcheck, outcheck=0, out, inpcheck=1, in, temp, tempmod,
 templev, end;
     char str[3];
     stack[1]=0;
@@ -48,7 +43,7 @@ templev, end;
     if(ifp == NULL) return 1;
     FILE *ofp;
     while (exists == 1){
-        
+
         char str[filecount%10];
         sprintf(str,"%d",filecount);
         strcat(name, str);
@@ -113,7 +108,7 @@ templev, end;
         tempmod=all[pc].m;
         // Store a temporary level
         templev=all[pc].l;
-        execute(all[pc].op, all[pc].l, all[pc].m, str, &lcheck, &mcheck, &outcheck, &out, &inpcheck, &in, &hlt, &pc, &bp, 
+        execute(all[pc].op, all[pc].l, all[pc].m, str, &lcheck, &mcheck, &outcheck, &out, &inpcheck, &in, &hlt, &pc, &bp,
 &sp);
         // Check if the modifier should be displayed in the output
         if(!mcheck)
@@ -175,7 +170,7 @@ templev, end;
     return 0;
 }
 
-void execute(int opcode, int level, int modifier, char *str, int *lcheck, int *mcheck, int *outcheck, int *out, int *inpcheck, 
+void execute(int opcode, int level, int modifier, char *str, int *lcheck, int *mcheck, int *outcheck, int *out, int *inpcheck,
 int *in, int *hlt, int *pc, int *bp, int *sp)
 {
 
