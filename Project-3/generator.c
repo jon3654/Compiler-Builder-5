@@ -24,13 +24,12 @@ void generate(FILE* ofp){
     }
 }
 
-
 // places INC instruction at end of procedure code if procedures are found in the program
 void place_inc(int swap, int gen){
     pm0 temp;
     int i, j;
     for(j = 0; j < swap; j++){
-        for(i = 1; i < gen-1; i++){
+        for(i = 1; i < gen; i++){
             temp = code[i];
             code[i] = code[i+1];
             code[i+1] = temp;
@@ -42,7 +41,7 @@ void place_inc(int swap, int gen){
 void dec_m(){
     int i = 1;
     while(code[i].op != 0){
-        if(code[i].op == JMP || code[i].op == JPC || code[i].op == CAL){
+        if(code[i].op == JMP || code[i].op == CAL || code[i].op == JPC){
             code[i].m--;
         }
         i++;
@@ -59,6 +58,26 @@ void no_proc(){
     }
     cx--;
     dec_m();
+}
+
+void place_jmp()
+{
+    int i;
+    int k = 1;
+    for(i = 1; i < cx; i++){
+        if(code[i].op == JMP){
+            pm0 temp = code[i];
+            code[i] = code[k];
+            code[k] = temp;
+            int j;
+            for(j = k+1; j < code[k].m-1; j++){
+                temp = code[j];
+                code[j] = code[j+1];
+                code[j+1] = temp;
+            }
+            k++;
+        }
+    }
 }
 
 

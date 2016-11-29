@@ -11,6 +11,7 @@ int instr_gen = 0;  // keeps track of how many instruction were generated before
 int proc_exists = 0;    // is 1 if procedure is in program. otherwise flags parser to delete JMP call at the end of the parser program
 int swap = 0;   // keeps track of how many instructions before procedure(s) need to be moved to the position following the procedure(s)
 int num_proc = 0;   // tracks how many procedures are in a program
+int nest_proc = 0;
 
 // main parser functions
 
@@ -39,7 +40,8 @@ void program(FILE* ifp, tok_prop *properties){
         if(swap > 0)
             place_inc(swap, instr_gen);
         code[ctemp1].m = instr_gen;
-        place_jmp();
+        if(nest_proc == 1)
+            place_jmp();
     }
 
 
@@ -96,16 +98,16 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
         num_proc++;
         proc_exists = 1;
         level++;
-
+        
         int tmp_cx = cx;
 
         // if more than one proc exist, multiple jump calls need to be made
-        if(num_proc > 1){
+        if(num_proc > 1 && level > 1){
             emit(JMP, 0, 0);
             instr_gen++;
             do_emit = 1;    // if emit is to be done, flags true
         }
-
+        
         *token = get_token(ifp, properties);
         if(*token != identsym) error(4);
 
@@ -124,6 +126,7 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
 
         if(*token != semicolonsym) error(5);
         *token = get_token(ifp, properties);
+        if(level > 1) nest_proc = 1;
     }
     statement(ifp, properties, token);
     level--;
@@ -135,7 +138,6 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
     int cx1; // First temporary counter for while
     int cx2; // Second temporary counter for while
     int index = 0; // keeps track of where in the symbol_table array a symbol is
-    int in_proc = 0;
 
     if(*token == identsym){
         *token = get_token(ifp, properties);
@@ -158,11 +160,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         int index = getsymbol(properties->id);
 
         if(index == -1) error(11);
-        if(level != 0)
-            emit(CAL, level-1, symbol_table[index].modifier);
-        else
-            emit(CAL, level, symbol_table[index].modifier);
-        in_proc = 1;
+            emit(CAL, symbol_table[index].level, symbol_table[index].modifier);
         if(level > 0) instr_gen++;
 
         *token = get_token(ifp, properties);
@@ -254,7 +252,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         index = getsymbol(properties->id);
         if(index == -1) error(11);
         if(symbol_table[index].kind == 2){
-            emit(LOD, level, symbol_table[index].modifier);
+            emit(LOD, level-symbol_table[index].level, symbol_table[index].modifier);
             if(level > 0) instr_gen++;
         }
 
@@ -266,8 +264,17 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         if(level > 0) instr_gen++;
         *token = get_token(ifp, properties);
     }
-    in_proc = 0;
 
+	 else if(*token == elsesym){
+
+        *token = get_token(ifp, properties);
+        ctemp=cx; // Temporarily saves the code index
+        emit(JMP, 0, 0);
+        if(level > 0) instr_gen++;
+
+        statement(ifp, properties, token);
+        code[ctemp].m = cx; // Change JPC 0 0 to JPC 0 cx
+    }
 }
 
 void condition(FILE* ifp, tok_prop *properties, token_type *token){
@@ -346,7 +353,7 @@ void factor(FILE* ifp, tok_prop *properties, token_type *token){
     if(*token == identsym){
         int index = getsymbol(properties->id);
         if(index == -1) error(11);
-        emit(LOD, 0, symbol_table[index].modifier);
+        emit(LOD, level-symbol_table[index].level, symbol_table[index].modifier);
         if(level > 0) instr_gen++;
 
         *token = get_token(ifp, properties);

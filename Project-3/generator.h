@@ -13,6 +13,7 @@ void emit(int op, int level, int modifier);
 void generate(FILE* ofp);
 void no_proc();
 void place_inc(int swap, int gen);
+void place_jmp();
 
 typedef struct code_pm0 {
     int op;
