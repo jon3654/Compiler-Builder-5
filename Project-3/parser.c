@@ -12,10 +12,23 @@ int proc_exists = 0;    // is 1 if procedure is in program. otherwise flags pars
 int swap = 0;   // keeps track of how many instructions before procedure(s) need to be moved to the position following the procedure(s)
 int num_proc = 0;   // tracks how many procedures are in a program
 int nest_proc = 0;
+int do_emit = 0;
+int tmp_cx[2][50];
+int num_tmp = 0;
+int num_tmp1 = 0;
+int tmp_done = 0;
+int num_emit = 0;
 
 // main parser functions
 
 void program(FILE* ifp, tok_prop *properties){
+    
+    int i;
+    int j;
+    for(j = 0; j < 2; j++)
+        for(i = 0; i < 50; i++)
+            tmp_cx[j][i] = 0;
+    
     token_type token = get_token(ifp, properties);
 
     int ctemp1 = cx;    // keeps track of where the JMP instruction to be emitted is stored
@@ -37,11 +50,20 @@ void program(FILE* ifp, tok_prop *properties){
 
     // else
     else{
+        // alters JMP instruction to the correct PM line number if JMP was emitted
+        if(num_emit > 0){
+            int i;
+            for(i = 0;i < num_emit; i++){
+                code[tmp_cx[0][i]].m = tmp_cx[1][i];
+                num_tmp--;
+            }
+        }
         if(swap > 0)
             place_inc(swap, instr_gen);
         code[ctemp1].m = instr_gen;
-        if(nest_proc == 1)
+        if(nest_proc == 1){
             place_jmp();
+        }
     }
 
 
@@ -93,19 +115,18 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
         swap++;
     }
 
-    int do_emit = 0;    // tracks if an emit is going to be done for JMP
     while(*token == procsym){
         num_proc++;
         proc_exists = 1;
         level++;
 
-        int tmp_cx = cx;
-
         // if more than one proc exist, multiple jump calls need to be made
-        if(num_proc > 1 && level > 1){
+        if(level > 1 && num_proc > 1){
+            tmp_cx[0][num_tmp++] = cx;
             emit(JMP, 0, 0);
             instr_gen++;
             do_emit = 1;    // if emit is to be done, flags true
+            num_emit++;
         }
 
         *token = get_token(ifp, properties);
@@ -116,20 +137,32 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
         *token = get_token(ifp, properties);
         if(*token != semicolonsym) error(5);
 
+        if(level > 1) nest_proc = 1;
+        
         *token = get_token(ifp, properties);
+        
         block(ifp, properties, token);
-
-        // alters JMP instruction to the correct PM line number if JMP was emitted
-        if(do_emit == 1){
-            code[tmp_cx].m = instr_gen;
-        }
-
+        
         if(*token != semicolonsym) error(5);
         *token = get_token(ifp, properties);
-        if(level > 1) nest_proc = 1;
     }
+    
     statement(ifp, properties, token);
+    
+    if(do_emit == 1)
+    {
+        if(num_tmp % 2 != 0){
+            tmp_cx[1][num_tmp1+1] = instr_gen;
+        }
+        else{
+            tmp_cx[1][num_tmp1] = instr_gen;
+            num_tmp++;
+        }
+        do_emit = 0;
+    }
+    
     level--;
+    
 }
 
 void statement(FILE* ifp, tok_prop *properties, token_type *token){
@@ -138,7 +171,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
     int cx1; // First temporary counter for while
     int cx2; // Second temporary counter for while
     int index = 0; // keeps track of where in the symbol_table array a symbol is
-
+    
     if(*token == identsym){
         *token = get_token(ifp, properties);
         index = getsymbol(properties->id);
