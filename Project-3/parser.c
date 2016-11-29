@@ -146,10 +146,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
 
         *token = get_token(ifp, properties);
         expression(ifp, properties, token);
-        if(level != 0)
-            emit(STO, level-1, symbol_table[index].modifier);
-        else
-            emit(STO, level, symbol_table[index].modifier);
+        emit(STO, level, symbol_table[index].modifier);
         if(level > 0) instr_gen++;
     }
     else if(*token == callsym){
@@ -228,7 +225,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         if(*token != identsym) error(4);
         index = getsymbol(properties->id);
         if(index == -1) error(11);
-        emit(STO, 0, symbol_table[index].modifier);
+        emit(STO, symbol_table[index].level, symbol_table[index].modifier);
         if(level > 0) instr_gen++;
 
         *token = get_token(ifp, properties);
