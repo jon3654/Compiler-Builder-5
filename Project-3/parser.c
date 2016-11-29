@@ -38,7 +38,8 @@ void program(FILE* ifp, tok_prop *properties){
     else{
         if(swap > 0)
             place_inc(swap, instr_gen);
-        code[ctemp1].m = instr_gen-1;
+        code[ctemp1].m = instr_gen;
+        place_jmp();
     }
 
 
@@ -93,8 +94,8 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
     int do_emit = 0;    // tracks if an emit is going to be done for JMP
     while(*token == procsym){
         num_proc++;
-        level++;
         proc_exists = 1;
+        level++;
 
         int tmp_cx = cx;
 
@@ -123,18 +124,18 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
 
         if(*token != semicolonsym) error(5);
         *token = get_token(ifp, properties);
-
     }
-
     statement(ifp, properties, token);
     level--;
 }
 
 void statement(FILE* ifp, tok_prop *properties, token_type *token){
     int ctemp; // Temporary counter for if
+    int ctemp2; // Temporary counter for else
     int cx1; // First temporary counter for while
     int cx2; // Second temporary counter for while
     int index = 0; // keeps track of where in the symbol_table array a symbol is
+    int in_proc = 0;
 
     if(*token == identsym){
         *token = get_token(ifp, properties);
@@ -149,7 +150,6 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         emit(STO, level, symbol_table[index].modifier);
         if(level > 0) instr_gen++;
     }
-
     else if(*token == callsym){
         *token = get_token(ifp, properties);
 
@@ -158,8 +158,11 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         int index = getsymbol(properties->id);
 
         if(index == -1) error(11);
-
-        emit(CAL, level, symbol_table[index].modifier);
+        if(level != 0)
+            emit(CAL, level-1, symbol_table[index].modifier);
+        else
+            emit(CAL, level, symbol_table[index].modifier);
+        in_proc = 1;
         if(level > 0) instr_gen++;
 
         *token = get_token(ifp, properties);
@@ -179,9 +182,8 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         if (*token != endsym) error(17); // Semicolon or } expected
         if(level > 0){
             emit(OPR, 0, 0);    // emits machine code for return at the end of procedure
-            if(level > 0) instr_gen++;
+            instr_gen++;
         }
-
         *token = get_token(ifp, properties);
     }
 
@@ -195,7 +197,22 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         emit(JPC, 0, 0);
         if(level > 0) instr_gen++;
         statement(ifp, properties, token);
-        code[ctemp].m = cx; // Change JPC 0 0 to JPC 0 cx
+        if(*token == elsesym)
+        {
+            *token=get_token(ifp, properties);
+            ctemp2=cx;
+            emit(JMP, 0, 0);
+            if(level > 0) instr_gen++;
+
+            code[ctemp].m=cx; // Change JPC 0 0 to JPC 0 cx
+
+            statement(ifp, properties, token);
+            code[ctemp2].m=cx; // Change JMP 0 0 to JMP 0 cx
+        }
+        else
+        {
+            code[ctemp].m = cx; // Change JPC 0 0 to JPC 0 cx
+        }
     }
 
     else if(*token == whilesym){
@@ -224,7 +241,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         if(*token != identsym) error(4);
         index = getsymbol(properties->id);
         if(index == -1) error(11);
-        emit(STO, 0, symbol_table[index].modifier);
+        emit(STO, symbol_table[index].level, symbol_table[index].modifier);
         if(level > 0) instr_gen++;
 
         *token = get_token(ifp, properties);
@@ -249,17 +266,8 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         if(level > 0) instr_gen++;
         *token = get_token(ifp, properties);
     }
+    in_proc = 0;
 
-	 else if(*token == elsesym){
-
-        *token = get_token(ifp, properties);
-        ctemp=cx; // Temporarily saves the code index
-        emit(JMP, 0, 0);
-        if(level > 0) instr_gen++;
-
-        statement(ifp, properties, token);
-        code[ctemp].m = cx; // Change JPC 0 0 to JPC 0 cx
-    }
 }
 
 void condition(FILE* ifp, tok_prop *properties, token_type *token){
