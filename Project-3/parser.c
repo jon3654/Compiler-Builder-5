@@ -254,7 +254,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
 
         *token = get_token(ifp, properties);
         ctemp=cx; // Temporarily saves the code index
-        emit(JPC, 0, 0);
+        emit(JMP, 0, 0);
         if(level > 0) instr_gen++;
 
         statement(ifp, properties, token);
