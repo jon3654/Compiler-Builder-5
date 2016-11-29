@@ -121,6 +121,7 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
 
         // if more than one proc exist, multiple jump calls need to be made
         if(level > 0 && proc_exists == 1){
+            printf("emitting\n");
             tmp_cx[0][num_tmp++] = cx;
             emit(JMP, 0, 0);
             instr_gen++;
@@ -152,7 +153,8 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
     
     if(do_emit == 1)
     {
-        if(num_tmp % 2 != 0){
+        printf("%d\n", num_tmp);
+        if(num_tmp1 % 2 != 0){
             tmp_cx[1][num_tmp1+1] = instr_gen;
         }
         else{
