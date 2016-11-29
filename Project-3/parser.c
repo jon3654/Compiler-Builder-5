@@ -117,11 +117,10 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
 
     while(*token == procsym){
         num_proc++;
-        proc_exists = 1;
         level++;
 
         // if more than one proc exist, multiple jump calls need to be made
-        if(level > 1 && num_proc > 1){
+        if(level > 0 && proc_exists == 1){
             tmp_cx[0][num_tmp++] = cx;
             emit(JMP, 0, 0);
             instr_gen++;
@@ -129,6 +128,8 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
             num_emit++;
         }
 
+        proc_exists = 1;
+        
         *token = get_token(ifp, properties);
         if(*token != identsym) error(4);
 
@@ -155,8 +156,7 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
             tmp_cx[1][num_tmp1+1] = instr_gen;
         }
         else{
-            tmp_cx[1][num_tmp1] = instr_gen;
-            num_tmp++;
+            tmp_cx[1][num_tmp1++] = instr_gen;
         }
         do_emit = 0;
     }
