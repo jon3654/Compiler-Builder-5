@@ -12,7 +12,6 @@ int proc_exists = 0;    // is 1 if procedure is in program. otherwise flags pars
 int swap = 0;   // keeps track of how many instructions before procedure(s) need to be moved to the position following the procedure(s)
 int num_proc = 0;   // tracks how many procedures are in a program
 int nest_proc = 0;
-int tmp_i = 0;
 
 // main parser functions
 
@@ -41,6 +40,7 @@ void program(FILE* ifp, tok_prop *properties){
         if(swap > 0)
             place_inc(swap, instr_gen);
         code[ctemp1].m = instr_gen;
+        printf("%d\n", nest_proc);
         if(nest_proc == 1)
             place_jmp();
     }
@@ -117,6 +117,8 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
         *token = get_token(ifp, properties);
         if(*token != semicolonsym) error(5);
 
+        if(level > 1) nest_proc = 1;
+        
         *token = get_token(ifp, properties);
         block(ifp, properties, token);
 
@@ -127,10 +129,12 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
 
         if(*token != semicolonsym) error(5);
         *token = get_token(ifp, properties);
-        if(level > 1) nest_proc = 1;
     }
+    
     statement(ifp, properties, token);
+    
     level--;
+    
 }
 
 void statement(FILE* ifp, tok_prop *properties, token_type *token){
@@ -139,10 +143,6 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
     int cx1; // First temporary counter for while
     int cx2; // Second temporary counter for while
     int index = 0; // keeps track of where in the symbol_table array a symbol is
-    if(code[tmp_i].op == CAL){
-        code[tmp_i].l = level;
-        tmp_i = 0;
-    }
     
     if(*token == identsym){
         *token = get_token(ifp, properties);
@@ -165,8 +165,9 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         int index = getsymbol(properties->id);
 
         if(index == -1) error(11);
-        tmp_i = cx;
-        emit(CAL, symbol_table[index].level, symbol_table[index].modifier);
+        
+        emit(CAL, level +1, symbol_table[index].modifier);
+        
         if(level > 0) instr_gen++;
 
         *token = get_token(ifp, properties);
