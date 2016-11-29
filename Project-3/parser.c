@@ -239,7 +239,6 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         if(*token != identsym) error(4);
         index = getsymbol(properties->id);
         if(index == -1) error(11);
-        emit(STO, symbol_table[index].level, symbol_table[index].modifier);
         emit(STO, level-symbol_table[index].level, symbol_table[index].modifier);
         if(level > 0) instr_gen++;
 

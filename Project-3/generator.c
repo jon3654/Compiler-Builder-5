@@ -41,7 +41,7 @@ void place_inc(int swap, int gen){
 void dec_m(){
     int i = 1;
     while(code[i].op != 0){
-        if(code[i].op == JMP || code[i].op == CAL){
+        if(code[i].op == JMP || code[i].op == CAL || code[i].op == JPC){
             code[i].m--;
         }
         i++;
