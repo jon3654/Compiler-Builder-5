@@ -121,7 +121,6 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
 
         // if more than one proc exist, multiple jump calls need to be made
         if(level > 0 && proc_exists == 1){
-            printf("emitting\n");
             tmp_cx[0][num_tmp++] = cx;
             emit(JMP, 0, 0);
             instr_gen++;
@@ -149,19 +148,19 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
         *token = get_token(ifp, properties);
     }
     
-    statement(ifp, properties, token);
-    
     if(do_emit == 1)
     {
-        printf("%d\n", num_tmp);
         if(num_tmp1 % 2 != 0){
-            tmp_cx[1][num_tmp1+1] = instr_gen;
+            tmp_cx[1][num_tmp1+1] = cx-1;
         }
         else{
             tmp_cx[1][num_tmp1++] = instr_gen;
         }
         do_emit = 0;
     }
+
+    statement(ifp, properties, token);
+    
     
     level--;
     
@@ -213,6 +212,8 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         if(*token == identsym || *token == callsym || *token == beginsym || *token == ifsym || *token == whilesym) error(10); // Missing semicolon between statements ??????
         while(*token == elsesym) statement(ifp, properties, token);
         if (*token != endsym) error(17); // Semicolon or } expected
+        
+        
         if(level > 0){
             emit(OPR, 0, 0);    // emits machine code for return at the end of procedure
             instr_gen++;
