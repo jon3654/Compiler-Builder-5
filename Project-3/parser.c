@@ -40,7 +40,6 @@ void program(FILE* ifp, tok_prop *properties){
         if(swap > 0)
             place_inc(swap, instr_gen);
         code[ctemp1].m = instr_gen;
-        printf("%d\n", nest_proc);
         if(nest_proc == 1)
             place_jmp();
     }
@@ -99,7 +98,7 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
         num_proc++;
         proc_exists = 1;
         level++;
-        
+
         int tmp_cx = cx;
 
         // if more than one proc exist, multiple jump calls need to be made
@@ -108,7 +107,7 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
             instr_gen++;
             do_emit = 1;    // if emit is to be done, flags true
         }
-        
+
         *token = get_token(ifp, properties);
         if(*token != identsym) error(4);
 
@@ -160,14 +159,12 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
     else if(*token == callsym){
         *token = get_token(ifp, properties);
 
-        if(*token != identsym) error(14);
+        if(*token != identsym) error(14); // Call must be followed by an identifier
 
         int index = getsymbol(properties->id);
 
-        if(index == -1) error(11);
-        
-        emit(CAL, level +1, symbol_table[index].modifier);
-        
+        if(index == -1) error(11); // Undeclared identifier
+        emit(CAL, level-symbol_table[index].level+1, symbol_table[index].modifier);
         if(level > 0) instr_gen++;
 
         *token = get_token(ifp, properties);
