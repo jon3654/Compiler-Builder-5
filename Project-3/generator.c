@@ -30,9 +30,11 @@ void place_inc(int swap, int gen){
     int i, j;
     for(j = 0; j < swap; j++){
         for(i = 1; i < gen; i++){
-            temp = code[i];
-            code[i] = code[i+1];
-            code[i+1] = temp;
+            if(code[i].op != JMP){
+                temp = code[i];
+                code[i] = code[i+1];
+                code[i+1] = temp;
+            }
         }
     }
 }
@@ -62,22 +64,36 @@ void no_proc(){
 
 void place_jmp()
 {
-    int i;
     int k = 1;
-    for(i = 1; i < cx; i++){
-        if(code[i].op == JMP){
+    int d = 2;
+    int i, j;
+    for(i = 1; i < d; i++){
+        if(code[i].op == INC){
+            d++;
+        }
+        else if(code[i].op == JMP){
             pm0 temp = code[i];
             code[i] = code[k];
             code[k] = temp;
-            int j;
+            
             for(j = k+1; j < code[k].m-1; j++){
                 temp = code[j];
                 code[j] = code[j+1];
                 code[j+1] = temp;
             }
-            k++;
+        
+        k++;
         }
     }
+}
+
+void rm_jmp(int i){
+    int j;
+    for(j = i; j < cx; j++){
+        code[j] = code[j+1];
+    }
+    cx--;
+    dec_m();
 }
 
 
