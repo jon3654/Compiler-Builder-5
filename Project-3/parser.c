@@ -13,7 +13,8 @@ int swap = 0;   // keeps track of how many instructions before procedure(s) need
 int num_proc = 0;   // tracks how many procedures are in a program
 int nest_proc = 0;
 int do_emit = 0;
-int tmp_cx[2][50];
+int tmp_c = 0;
+int tmp_c1 = 0;
 int num_tmp = 0;
 int num_tmp1 = 0;
 int tmp_done = 0;
@@ -22,12 +23,6 @@ int num_emit = 0;
 // main parser functions
 
 void program(FILE* ifp, tok_prop *properties){
-    
-    int i;
-    int j;
-    for(j = 0; j < 2; j++)
-        for(i = 0; i < 50; i++)
-            tmp_cx[j][i] = 0;
     
     token_type token = get_token(ifp, properties);
 
@@ -51,13 +46,6 @@ void program(FILE* ifp, tok_prop *properties){
     // else
     else{
         // alters JMP instruction to the correct PM line number if JMP was emitted
-        if(num_emit > 0){
-            int i;
-            for(i = 0;i < num_emit; i++){
-                code[tmp_cx[0][i]].m = tmp_cx[1][i];
-                num_tmp--;
-            }
-        }
         if(swap > 0)
             place_inc(swap, instr_gen);
         code[ctemp1].m = instr_gen;
@@ -121,8 +109,10 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
 
         // if more than one proc exist, multiple jump calls need to be made
         if(level > 0 && proc_exists == 1){
-            printf("%d\n", num_tmp);
-            tmp_cx[0][num_tmp++] = cx;
+            if(num_proc % 2 == 0)
+                tmp_c = cx;
+            else
+                tmp_c1 = cx;
             emit(JMP, 0, 0);
             instr_gen++;
             do_emit = 1;    // if emit is to be done, flags true
@@ -150,11 +140,11 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
     
     if(do_emit == 1 && nest_proc == 0)
     {
-        if(num_tmp1 % 2 != 0){
-            tmp_cx[1][num_tmp1-1] = instr_gen;
+        if(num_proc % 2 == 0){
+            code[tmp_c].m = instr_gen;
         }
         else{
-            tmp_cx[1][num_tmp1+1] = instr_gen;
+            code[tmp_c1].m = instr_gen;
         }
         do_emit = 0;
         num_tmp1++;
@@ -165,11 +155,11 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
     if(do_emit == 1 && nest_proc == 1)
     {
         printf("INDEX: %d\n", num_tmp1);
-        if(num_tmp1 % 2 != 0){
-            tmp_cx[1][num_tmp1-1] = instr_gen;
+        if(num_proc % 2 == 0){
+            code[tmp_c].m = instr_gen;
         }
         else{
-            tmp_cx[1][num_tmp1+1] = instr_gen;
+            code[tmp_c1].m = instr_gen;
         }
         do_emit = 0;
         num_tmp1++;
