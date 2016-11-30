@@ -15,6 +15,7 @@ void no_proc();
 void place_inc(int swap, int gen);
 void place_jmp();
 void rm_jmp(int i);
+void swap_jmp(int num);
 
 typedef struct code_pm0 {
     int op;
