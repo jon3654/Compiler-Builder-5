@@ -181,7 +181,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
 
         *token = get_token(ifp, properties);
         expression(ifp, properties, token);
-        emit(STO, level-symbol_table[index].level, symbol_table[index].modifier);
+        emit(STO, level-symbol_table[index].level+1, symbol_table[index].modifier);
         if(level > 0) instr_gen++;
     }
     else if(*token == callsym){
@@ -214,9 +214,10 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
             emit(OPR, 0, 0);    // emits machine code for return at the end of procedure
             instr_gen++;
             proc_dec = 0;
+            delete_vars(level);
+            
         }
 
-        delete_vars();
         *token = get_token(ifp, properties);
     }
 
@@ -274,7 +275,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         if(*token != identsym) error(4);
         index = getsymbol(properties->id);
         if(index == -1) error(11);
-        emit(STO, level-symbol_table[index].level, symbol_table[index].modifier);
+        emit(STO, level-symbol_table[index].level+1, symbol_table[index].modifier);
         if(level > 0) instr_gen++;
 
         *token = get_token(ifp, properties);
@@ -287,7 +288,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         index = getsymbol(properties->id);
         if(index == -1) error(11);
         if(symbol_table[index].kind == 2){
-            emit(LOD, level-symbol_table[index].level, symbol_table[index].modifier);
+            emit(LOD, level-symbol_table[index].level+1, symbol_table[index].modifier);
             if(level > 0) instr_gen++;
         }
 
@@ -388,7 +389,7 @@ void factor(FILE* ifp, tok_prop *properties, token_type *token){
     if(*token == identsym){
         int index = getsymbol(properties->id);
         if(index == -1) error(11);
-        emit(LOD, level-symbol_table[index].level, symbol_table[index].modifier);
+        emit(LOD, level-symbol_table[index].level+1, symbol_table[index].modifier);
         if(level > 0) instr_gen++;
 
         *token = get_token(ifp, properties);

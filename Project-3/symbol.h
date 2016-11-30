@@ -18,6 +18,6 @@ int getsymbol(char* name);
 void put_symbol(int kind, char* name, int num, int level, int modifier);
 void init_array();
 void print_array(); // for debuggin
-void delete_vars(); // Deletes local variables after procedure ends
+void delete_vars(int level); // Deletes local variables after procedure ends
 
 #endif
