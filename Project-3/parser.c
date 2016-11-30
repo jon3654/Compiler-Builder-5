@@ -106,7 +106,7 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
     while(*token == procsym){
         num_proc++;
         level++;
-
+        printf("%d\n", num_proc);
         // if more than one proc exist, multiple jump calls need to be made
         if(level > 0 && proc_exists == 1){
             if(num_proc % 2 == 0)
@@ -145,24 +145,25 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
         }
         else{
             code[tmp_c1].m = instr_gen;
+            swap_jmp();
         }
         do_emit = 0;
-        num_tmp1++;
     }
 
     statement(ifp, properties, token);
     
     if(do_emit == 1 && nest_proc == 1)
     {
-        printf("INDEX: %d\n", num_tmp1);
+        printf("INDEX: %d\n", num_proc);
         if(num_proc % 2 == 0){
             code[tmp_c].m = instr_gen;
         }
         else{
             code[tmp_c1].m = instr_gen;
+            swap_jmp();
+
         }
         do_emit = 0;
-        num_tmp1++;
     }
     
     level--;
