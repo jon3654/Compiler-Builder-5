@@ -20,7 +20,7 @@ int proc_dec = 0;
 // main parser functions
 
 void program(FILE* ifp, tok_prop *properties){
-    
+
     token_type token = get_token(ifp, properties);
 
     int ctemp1 = cx;    // keeps track of where the JMP instruction to be emitted is stored
@@ -114,10 +114,10 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
             instr_gen++;
             do_emit = 1;    // if emit is to be done, flags true
         }
-        
+
         if(level > 1) nest_proc = 1;
         proc_exists = 1;
-        
+
         *token = get_token(ifp, properties);
         if(*token != identsym) error(4);
 
@@ -125,15 +125,15 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
 
         *token = get_token(ifp, properties);
         if(*token != semicolonsym) error(5);
-        
+
         *token = get_token(ifp, properties);
-        
+
         block(ifp, properties, token);
-        
+
         if(*token != semicolonsym) error(5);
         *token = get_token(ifp, properties);
     }
-    
+
     if(do_emit == 1 && nest_proc == 0)
     {
         if(num_proc % 2 == 0){
@@ -146,7 +146,7 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
         do_emit = 0;
     }
     statement(ifp, properties, token);
-    
+
     if(do_emit == 1 && nest_proc == 1)
     {
         if(num_proc % 2 == 0){
@@ -159,9 +159,9 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
         }
         do_emit = 0;
     }
-    
+
     level--;
-    
+
 }
 
 void statement(FILE* ifp, tok_prop *properties, token_type *token){
@@ -170,7 +170,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
     int cx1; // First temporary counter for while
     int cx2; // Second temporary counter for while
     int index = 0; // keeps track of where in the symbol_table array a symbol is
-    
+
     if(*token == identsym){
         *token = get_token(ifp, properties);
         index = getsymbol(properties->id);
@@ -215,7 +215,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
             instr_gen++;
             proc_dec = 0;
         }
-        
+
         delete_vars();
         *token = get_token(ifp, properties);
     }
@@ -237,14 +237,14 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
             emit(JMP, 0, 0);
             if(level > 0) instr_gen++;
 
-            code[ctemp].m=cx; // Change JPC 0 0 to JPC 0 cx
+            code[ctemp].m=cx+1; // Change JPC 0 0 to JPC 0 cx+1
 
             statement(ifp, properties, token);
-            code[ctemp2].m=cx; // Change JMP 0 0 to JMP 0 cx
+            code[ctemp2].m=cx+1; // Change JMP 0 0 to JMP 0 cx+1
         }
         else
         {
-            code[ctemp].m = cx; // Change JPC 0 0 to JPC 0 cx
+            code[ctemp].m = cx-1; // Change JPC 0 0 to JPC 0 cx-1
         }
     }
 
@@ -263,7 +263,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         statement(ifp, properties, token);
         emit(JMP, 0, cx1);
         if(level > 0) instr_gen++;
-        code[cx2].m=cx; // JPC 0 0 to JPC 0 cx
+        code[cx2].m=cx+1; // JPC 0 0 to JPC 0 cx+1
     }
 
     else if(*token == readsym){
