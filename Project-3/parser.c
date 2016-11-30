@@ -15,10 +15,7 @@ int nest_proc = 0;
 int do_emit = 0;
 int tmp_c = 0;
 int tmp_c1 = 0;
-int num_tmp = 0;
-int num_tmp1 = 0;
-int tmp_done = 0;
-int num_emit = 0;
+int proc_dec = 0;
 
 // main parser functions
 
@@ -104,6 +101,7 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
     }
 
     while(*token == procsym){
+        proc_dec = 1;
         num_proc++;
         level++;
         // if more than one proc exist, multiple jump calls need to be made
@@ -115,7 +113,6 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
             emit(JMP, 0, 0);
             instr_gen++;
             do_emit = 1;    // if emit is to be done, flags true
-            num_emit++;
         }
         
         if(level > 1) nest_proc = 1;
@@ -148,7 +145,6 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
         }
         do_emit = 0;
     }
-
     statement(ifp, properties, token);
     
     if(do_emit == 1 && nest_proc == 1)
@@ -214,10 +210,10 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         if(*token == identsym || *token == callsym || *token == beginsym || *token == ifsym || *token == whilesym) error(10); // Missing semicolon between statements ??????
         while(*token == elsesym) statement(ifp, properties, token);
         if (*token != endsym) error(17); // Semicolon or } expected
-        
-        if(level > 0){
+        if(level > 0 && proc_dec == 1){
             emit(OPR, 0, 0);    // emits machine code for return at the end of procedure
             instr_gen++;
+            proc_dec = 0;
         }
         
         delete_vars();

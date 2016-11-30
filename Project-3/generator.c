@@ -41,7 +41,7 @@ void place_inc(int swap, int gen){
 
 // decrements modifier on JMP JPC and CAL if no procedures are in the program
 void dec_m(){
-    int i = 1;
+    int i = 0;
     while(code[i].op != 0){
         if(code[i].op == JMP || code[i].op == CAL || code[i].op == JPC){
             code[i].m--;
