@@ -121,13 +121,15 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
 
         // if more than one proc exist, multiple jump calls need to be made
         if(level > 0 && proc_exists == 1){
+            printf("%d\n", num_tmp);
             tmp_cx[0][num_tmp++] = cx;
             emit(JMP, 0, 0);
             instr_gen++;
             do_emit = 1;    // if emit is to be done, flags true
             num_emit++;
         }
-
+        
+        if(level > 1) nest_proc = 1;
         proc_exists = 1;
         
         *token = get_token(ifp, properties);
@@ -137,8 +139,6 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
 
         *token = get_token(ifp, properties);
         if(*token != semicolonsym) error(5);
-
-        if(level > 1) nest_proc = 1;
         
         *token = get_token(ifp, properties);
         
@@ -148,19 +148,32 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
         *token = get_token(ifp, properties);
     }
     
-    if(do_emit == 1)
+    if(do_emit == 1 && nest_proc == 0)
     {
         if(num_tmp1 % 2 != 0){
-            tmp_cx[1][num_tmp1+1] = cx-1;
+            tmp_cx[1][num_tmp1-1] = instr_gen;
         }
         else{
-            tmp_cx[1][num_tmp1++] = instr_gen;
+            tmp_cx[1][num_tmp1+1] = instr_gen;
         }
         do_emit = 0;
+        num_tmp1++;
     }
 
     statement(ifp, properties, token);
     
+    if(do_emit == 1 && nest_proc == 1)
+    {
+        printf("INDEX: %d\n", num_tmp1);
+        if(num_tmp1 % 2 != 0){
+            tmp_cx[1][num_tmp1-1] = instr_gen;
+        }
+        else{
+            tmp_cx[1][num_tmp1+1] = instr_gen;
+        }
+        do_emit = 0;
+        num_tmp1++;
+    }
     
     level--;
     
@@ -213,11 +226,12 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         while(*token == elsesym) statement(ifp, properties, token);
         if (*token != endsym) error(17); // Semicolon or } expected
         
-        
         if(level > 0){
             emit(OPR, 0, 0);    // emits machine code for return at the end of procedure
             instr_gen++;
         }
+        
+        delete_vars();
         *token = get_token(ifp, properties);
     }
 
