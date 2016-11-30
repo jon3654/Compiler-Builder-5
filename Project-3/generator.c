@@ -81,7 +81,6 @@ void place_jmp()
                 code[j] = code[j+1];
                 code[j+1] = temp;
             }
-        
         k++;
         }
     }
@@ -95,6 +94,43 @@ void rm_jmp(int i){
     cx--;
     dec_m();
 }
+
+void swap_jmp(int num){
+    int num_found = 1;
+    int i, index, index1;
+    int swap_done = 0;
+    i = 1;
+    
+    while(num_found < num){
+        if(code[i].op == JMP) num_found++;
+        i++;
+    }
+    
+    i = 1;
+    while(swap_done != 1){
+        if(code[i].op == JMP) {swap_done = 1; index = i;}
+        i++;
+    }
+    swap_done = 0;
+    num_found = 2;
+    while(swap_done != 1){
+        if(code[i].op == JMP) {swap_done = 1; index1 = i;}
+        i++;
+    }
+    
+    pm0 tmp = code[index];
+    code[index] = code[index1];
+    code[index1] = tmp;
+
+}
+
+
+
+
+
+
+
+
 
 
 
