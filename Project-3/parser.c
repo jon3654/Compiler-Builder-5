@@ -56,6 +56,7 @@ void program(FILE* ifp, tok_prop *properties){
 }
 
 void block(FILE* ifp, tok_prop *properties, token_type *token){
+    level++;
     if(*token == constsym){
        do{
             *token = get_token(ifp, properties);
@@ -103,7 +104,6 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
     while(*token == procsym){
         proc_dec = 1;
         num_proc++;
-        level++;
         // if more than one proc exist, multiple jump calls need to be made
         if(level > 0 && proc_exists == 1){
             if(num_proc % 2 == 0)
@@ -147,6 +147,8 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
     }
     statement(ifp, properties, token);
 
+    level--;
+    
     if(do_emit == 1 && nest_proc == 1)
     {
         if(num_proc % 2 == 0){
@@ -160,7 +162,6 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
         do_emit = 0;
     }
 
-    level--;
 
 }
 
@@ -181,7 +182,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
 
         *token = get_token(ifp, properties);
         expression(ifp, properties, token);
-        emit(STO, level-symbol_table[index].level, symbol_table[index].modifier);
+        emit(STO, level - symbol_table[index].level, symbol_table[index].modifier);
         if(level > 0) instr_gen++;
     }
     else if(*token == callsym){
@@ -210,7 +211,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         if(*token == identsym || *token == callsym || *token == beginsym || *token == ifsym || *token == whilesym) error(10); // Missing semicolon between statements ??????
         while(*token == elsesym) statement(ifp, properties, token);
         if (*token != endsym) error(17); // Semicolon or } expected
-        if(level > 0 && proc_dec == 1){
+        if(level > 0){
             emit(OPR, 0, 0);    // emits machine code for return at the end of procedure
             instr_gen++;
             proc_dec = 0;
@@ -237,14 +238,14 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
             emit(JMP, 0, 0);
             if(level > 0) instr_gen++;
 
-            code[ctemp].m=cx+1; // Change JPC 0 0 to JPC 0 cx+1
+            code[ctemp].m=cx; // Change JPC 0 0 to JPC 0 cx+1
 
             statement(ifp, properties, token);
-            code[ctemp2].m=cx+1; // Change JMP 0 0 to JMP 0 cx+1
+            code[ctemp2].m=cx; // Change JMP 0 0 to JMP 0 cx+1
         }
         else
         {
-            code[ctemp].m = cx-1; // Change JPC 0 0 to JPC 0 cx-1
+            code[ctemp].m = cx; // Change JPC 0 0 to JPC 0 cx-1
         }
     }
 
@@ -274,7 +275,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         if(*token != identsym) error(4);
         index = getsymbol(properties->id);
         if(index == -1) error(11);
-        emit(STO, level-symbol_table[index].level, symbol_table[index].modifier);
+        emit(STO, level - symbol_table[index].level, symbol_table[index].modifier);
         if(level > 0) instr_gen++;
 
         *token = get_token(ifp, properties);
@@ -287,7 +288,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         index = getsymbol(properties->id);
         if(index == -1) error(11);
         if(symbol_table[index].kind == 2){
-            emit(LOD, level-symbol_table[index].level, symbol_table[index].modifier);
+            emit(LOD, level - symbol_table[index].level, symbol_table[index].modifier);
             if(level > 0) instr_gen++;
         }
 
@@ -388,7 +389,7 @@ void factor(FILE* ifp, tok_prop *properties, token_type *token){
     if(*token == identsym){
         int index = getsymbol(properties->id);
         if(index == -1) error(11);
-        emit(LOD, level-symbol_table[index].level, symbol_table[index].modifier);
+        emit(LOD, level - symbol_table[index].level, symbol_table[index].modifier);
         if(level > 0) instr_gen++;
 
         *token = get_token(ifp, properties);
