@@ -56,7 +56,6 @@ void program(FILE* ifp, tok_prop *properties){
 }
 
 void block(FILE* ifp, tok_prop *properties, token_type *token){
-    level++;
     if(*token == constsym){
        do{
             *token = get_token(ifp, properties);
@@ -102,6 +101,8 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
     }
 
     while(*token == procsym){
+        level++;
+        
         proc_dec = 1;
         num_proc++;
         // if more than one proc exist, multiple jump calls need to be made
@@ -132,6 +133,9 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
 
         if(*token != semicolonsym) error(5);
         *token = get_token(ifp, properties);
+        
+        if(level > 0)
+            level--;
     }
 
     if(do_emit == 1 && nest_proc == 0)
@@ -145,9 +149,9 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
         }
         do_emit = 0;
     }
+    
     statement(ifp, properties, token);
 
-    level--;
     
     if(do_emit == 1 && nest_proc == 1)
     {
@@ -161,7 +165,6 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
         }
         do_emit = 0;
     }
-
 
 }
 
@@ -182,7 +185,11 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
 
         *token = get_token(ifp, properties);
         expression(ifp, properties, token);
-        emit(STO, level - symbol_table[index].level, symbol_table[index].modifier);
+        if( level - symbol_table[index].level >= 0 )
+            emit(STO, level - symbol_table[index].level, symbol_table[index].modifier);
+        else
+            emit(STO, 0, symbol_table[index].modifier);
+        printf("%d\n", level - symbol_table[index].level + 1);
         if(level > 0) instr_gen++;
     }
     else if(*token == callsym){
@@ -275,7 +282,10 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         if(*token != identsym) error(4);
         index = getsymbol(properties->id);
         if(index == -1) error(11);
-        emit(STO, level - symbol_table[index].level, symbol_table[index].modifier);
+        if( level - symbol_table[index].level >= 0 )
+            emit(STO, level - symbol_table[index].level, symbol_table[index].modifier);
+        else
+            emit(STO, 0, symbol_table[index].modifier);
         if(level > 0) instr_gen++;
 
         *token = get_token(ifp, properties);
@@ -288,7 +298,10 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         index = getsymbol(properties->id);
         if(index == -1) error(11);
         if(symbol_table[index].kind == 2){
-            emit(LOD, level - symbol_table[index].level, symbol_table[index].modifier);
+            if( level - symbol_table[index].level >= 0 )
+                emit(LOD, level - symbol_table[index].level, symbol_table[index].modifier);
+            else
+                emit(LOD, 0, symbol_table[index].modifier);
             if(level > 0) instr_gen++;
         }
 
@@ -389,7 +402,10 @@ void factor(FILE* ifp, tok_prop *properties, token_type *token){
     if(*token == identsym){
         int index = getsymbol(properties->id);
         if(index == -1) error(11);
-        emit(LOD, level - symbol_table[index].level, symbol_table[index].modifier);
+        if( level - symbol_table[index].level >= 0 )
+            emit(LOD, level - symbol_table[index].level, symbol_table[index].modifier);
+        else
+            emit(LOD, 0, symbol_table[index].modifier);
         if(level > 0) instr_gen++;
 
         *token = get_token(ifp, properties);
