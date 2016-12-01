@@ -185,11 +185,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
 
         *token = get_token(ifp, properties);
         expression(ifp, properties, token);
-        if( level - symbol_table[index].level >= 0 )
-            emit(STO, level - symbol_table[index].level, symbol_table[index].modifier);
-        else
-            emit(STO, 0, symbol_table[index].modifier);
-        printf("%d\n", level - symbol_table[index].level + 1);
+        emit(STO, level-symbol_table[index].level+1, symbol_table[index].modifier);
         if(level > 0) instr_gen++;
     }
     else if(*token == callsym){
@@ -222,9 +218,10 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
             emit(OPR, 0, 0);    // emits machine code for return at the end of procedure
             instr_gen++;
             proc_dec = 0;
+            delete_vars(level);
+            
         }
 
-        delete_vars();
         *token = get_token(ifp, properties);
     }
 

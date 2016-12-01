@@ -67,14 +67,14 @@ void print_array(){
 }
 
 
-void delete_vars(){
+void delete_vars(int level){
 
-    while(symbol_table[symcount-1].kind != 3 && symcount>1)
+    for(int i = 0; i < MAX_SYMBOL_TABLE_SIZE; i++)
     {
-        symbol_table[symcount-1].kind = 0;
-        strcpy(symbol_table[symcount-1].name, "0");
-        symbol_table[symcount-1].level = 0;
-        symbol_table[symcount-1].modifier = 0;
-        symcount--;
+        if(symbol_table[i].level == level && (symbol_table[i].kind == 1 || symbol_table[i].kind == 0)){
+            strcpy(symbol_table[i].name, "0");
+            symbol_table[i].kind = 0;
+            symbol_table[i].level = 0;
+        }
     }
 }
