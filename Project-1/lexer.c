@@ -562,12 +562,10 @@ void PrintTokens(FILE *ifp)
                         printf("procedure\t%d\n", procsym);
                     
                     // else it's a reserved word (or should throw an error if too long)
->>>>>>> 632cad1a5dc69676303b2d67151f2202ddbc099d
                     else
                         printf("%s\t%d\n", string, identsym);
                 }
                 
-<<<<<<< HEAD
                 // test string for procedure
                 else if(strcmp(string, "procedure") == 0)
                     printf("procedure\t%d\n", procsym);
@@ -630,7 +628,6 @@ void PrintTokens(FILE *ifp)
 			counter = 0;
 	    }
 	}
-=======
                 else
                     printf("%s\t%d\n", string, identsym);
                 
@@ -680,6 +677,5 @@ void PrintTokens(FILE *ifp)
         
         else
             length = 0;
->>>>>>> 632cad1a5dc69676303b2d67151f2202ddbc099d
     }
 }
