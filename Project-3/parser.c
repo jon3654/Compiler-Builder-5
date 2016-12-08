@@ -6,6 +6,9 @@
 #include "symbol.h"
 #include <string.h>
 
+void if_proc(FILE* ifp, tok_prop *properties, token_type *token);
+void var_proc(FILE* ifp, tok_prop *properties, token_type *token);
+
 int level = 0;  // global variable to keep track of levels
 int instr_gen = 0;  // keeps track of how many instruction were generated before main
 int proc_exists = 0;    // is 1 if procedure is in program. otherwise flags parser to delete JMP call at the end of the parser program
@@ -41,9 +44,7 @@ void program(FILE* ifp, tok_prop *properties){
 
     // else
     else{
-        // alters JMP instruction to the correct PM line number if JMP was emitted
-        if(swap > 0)
-            place_inc(swap, instr_gen);
+        place_inc(swap, instr_gen);
         code[ctemp1].m = instr_gen;
         if(nest_proc == 1){
             place_jmp();
@@ -77,26 +78,13 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
         if(*token != semicolonsym) error(5);
             *token = get_token(ifp, properties);
     }
-    int numvars = 0;
     if(*token == varsym){
-        do{
-            *token = get_token(ifp, properties);
-            if(*token != identsym) error(4);
-
-            numvars++;
-            put_symbol(2, properties->id, 0, level, 3 + numvars);
-
-            *token = get_token(ifp, properties);
-        }while(*token == commasym);
-
-        if(*token != semicolonsym) error(5);
-
-        *token = get_token(ifp, properties);
-    }
-    emit(INC, 0, 4+numvars);
-    if(level > 0) instr_gen++;
-    if(level == 0){
-        swap++;
+        var_proc(ifp, properties, token);
+        
+        if(level > 0) instr_gen++;
+        if(level == 0){
+            swap++;
+        }
     }
     
     if(*token == procsym)
@@ -147,16 +135,63 @@ void procedure(FILE* ifp, tok_prop *properties, token_type *token){
         
         if(*token != semicolonsym) error(5);
         *token = get_token(ifp, properties);
-        level--;
     }
 }
 
+void if_proc(FILE* ifp, tok_prop *properties, token_type *token){
+    int ctemp; // Temporary counter for if
+    int ctemp2; // Temporary counter for else
+    
+    *token = get_token(ifp, properties);
+    condition(ifp, properties, token);
+    
+    if(*token != thensym) error(16); // Then expected
+    *token = get_token(ifp, properties);
+    ctemp=cx; // Temporarily saves the code index
+    emit(JPC, 0, 0);
+    if(level > 0) instr_gen++;
+    statement(ifp, properties, token);
+    code[ctemp].m = cx; // Change JPC 0 0 to JPC 0 cx-1
+    if(*token == elsesym)
+    {
+        *token=get_token(ifp, properties);
+        ctemp2=cx;
+        emit(JMP, 0, 0);
+        if(level > 0) instr_gen++;
+        
+        code[ctemp].m=cx; // Change JPC 0 0 to JPC 0 cx+1
+        
+        statement(ifp, properties, token);
+        code[ctemp2].m=cx; // Change JMP 0 0 to JMP 0 cx+1
+    }
+    
+}
+
+void var_proc(FILE* ifp, tok_prop *properties, token_type *token){
+    int numvars = 0;
+    do{
+        *token = get_token(ifp, properties);
+        if(*token != identsym) error(4);
+        
+        numvars++;
+        put_symbol(2, properties->id, 0, level, 3 + numvars);
+        
+        *token = get_token(ifp, properties);
+    }while(*token == commasym);
+    
+    if(*token != semicolonsym) error(5);
+    
+    *token = get_token(ifp, properties);
+    emit(INC, 0, 4+numvars);
+}
+
+
 void statement(FILE* ifp, tok_prop *properties, token_type *token){
+    int index = 0; // keeps track of where in the symbol_table array a symbol is
     int ctemp; // Temporary counter for if
     int ctemp2; // Temporary counter for else
     int cx1; // First temporary counter for while
     int cx2; // Second temporary counter for while
-    int index = 0; // keeps track of where in the symbol_table array a symbol is
 
     if(*token == identsym){
         *token = get_token(ifp, properties);
@@ -198,7 +233,8 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         if(*token == identsym || *token == callsym || *token == beginsym || *token == ifsym || *token == whilesym) error(10); // Missing semicolon between statements ??????
         while(*token == elsesym) statement(ifp, properties, token);
         if (*token != endsym) error(17); // Semicolon or } expected
-        if(level > 0){
+        if(level > 0 && *token == endsym){
+            level--;
             emit(OPR, 0, 0);    // emits machine code for return at the end of procedure
             instr_gen++;
             proc_dec = 0;
@@ -209,31 +245,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
     }
 
     else if(*token == ifsym){
-        *token = get_token(ifp, properties);
-        condition(ifp, properties, token);
-
-        if(*token != thensym) error(16); // Then expected
-        *token = get_token(ifp, properties);
-        ctemp=cx; // Temporarily saves the code index
-        emit(JPC, 0, 0);
-        if(level > 0) instr_gen++;
-        statement(ifp, properties, token);
-        if(*token == elsesym)
-        {
-            *token=get_token(ifp, properties);
-            ctemp2=cx;
-            emit(JMP, 0, 0);
-            if(level > 0) instr_gen++;
-
-            code[ctemp].m=cx; // Change JPC 0 0 to JPC 0 cx+1
-
-            statement(ifp, properties, token);
-            code[ctemp2].m=cx; // Change JMP 0 0 to JMP 0 cx+1
-        }
-        else
-        {
-            code[ctemp].m = cx; // Change JPC 0 0 to JPC 0 cx-1
-        }
+        if_proc(ifp, properties, token);
     }
 
     else if(*token == whilesym){

@@ -27,16 +27,23 @@ void generate(FILE* ofp){
 // places INC instruction at end of procedure code if procedures are found in the program
 void place_inc(int swap, int gen){
     pm0 temp;
-    int i, j;
+    int temp_cx;
+    int i, j, n = 0;
     for(j = 0; j < swap; j++){
         for(i = 1; i < gen; i++){
-            if(code[i].op != JMP){
-                temp = code[i];
-                code[i] = code[i+1];
-                code[i+1] = temp;
+            temp = code[i];
+            code[i] = code[i+1];
+            code[i+1] = temp;
+            if(code[i].op == JMP || code[i].op == JPC){
+                temp_cx = i;
+                code[i].m--;
+            }
+            else if(code[i].op == OPR && code[i].m == 0){
+                n++;
             }
         }
     }
+    code[temp_cx].m = code[temp_cx].m - n;
 }
 
 // decrements modifier on JMP JPC and CAL if no procedures are in the program
