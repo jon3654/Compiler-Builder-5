@@ -203,7 +203,6 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
 
         *token = get_token(ifp, properties);
         expression(ifp, properties, token);
-        printf("VAR LEVEL: %d VAR NAME %s\n",symbol_table[index].level, properties->id );
         emit(STO, level-symbol_table[index].level, symbol_table[index].modifier);
         if(level > 0) instr_gen++;
     }
