@@ -10,7 +10,6 @@ int level = 0;  // global variable to keep track of levels
 int instr_gen = 0;  // keeps track of how many instruction were generated before main
 int proc_exists = 0;    // is 1 if procedure is in program. otherwise flags parser to delete JMP call at the end of the parser program
 int swap = 0;   // keeps track of how many instructions before procedure(s) need to be moved to the position following the procedure(s)
-int num_proc = 0;   // tracks how many procedures are in a program
 int nest_proc = 0;
 int do_emit = 0;
 int tmp_c = 0;
@@ -99,53 +98,13 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
     if(level == 0){
         swap++;
     }
-
-    while(*token == procsym){
-        level++;
-        proc_dec = 1;
-        num_proc++;
-        // if more than one proc exist, multiple jump calls need to be made
-        if(level > 0 && proc_exists == 1){
-            if(num_proc % 2 == 0)
-                tmp_c = cx;
-            else
-                tmp_c1 = cx;
-            emit(JMP, 0, 0);
-            instr_gen++;
-            do_emit = 1;    // if emit is to be done, flags true
-        }
-
-        if(level > 1) nest_proc = 1;
-        proc_exists = 1;
-
-        *token = get_token(ifp, properties);
-        if(*token != identsym) error(4);
-
-        put_symbol(3, properties->id, 0, level, cx-1);
-
-        *token = get_token(ifp, properties);
-        if(*token != semicolonsym) error(5);
-
-        *token = get_token(ifp, properties);
-
-        block(ifp, properties, token);
-
-        if(*token != semicolonsym) error(5);
-        *token = get_token(ifp, properties);
-        if(level > 0)
-            level--;
-        
-    }
+    
+    if(*token == procsym)
+        procedure(ifp, properties, token);
 
     if(do_emit == 1 && nest_proc == 0)
     {
-        if(num_proc % 2 == 0){
-            code[tmp_c].m = instr_gen-1;
-        }
-        else{
-            code[tmp_c1].m = instr_gen-1;
-            swap_jmp(num_proc);
-        }
+        code[tmp_c].m = instr_gen;
         do_emit = 0;
     }
     
@@ -154,15 +113,41 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
     
     if(do_emit == 1 && nest_proc == 1)
     {
-        if(num_proc % 2 == 0){
-            code[tmp_c].m = instr_gen-1;
-        }
-        else{
-            code[tmp_c1].m = instr_gen-1;
-            swap_jmp(num_proc);
-
-        }
+        code[tmp_c].m = instr_gen-1;
         do_emit = 0;
+    }
+}
+
+void procedure(FILE* ifp, tok_prop *properties, token_type *token){
+    while(*token == procsym){
+        level++;
+        proc_dec = 1;
+        // if more than one proc exist, multiple jump calls need to be made
+        if(level > 0 && proc_exists == 1){
+            tmp_c = cx;
+            emit(JMP, 0, 0);
+            instr_gen++;
+            do_emit = 1;    // if emit is to be done, flags true
+        }
+        proc_exists = 1;
+        
+        if(level > 1) nest_proc = 1;
+        
+        *token = get_token(ifp, properties);
+        if(*token != identsym) error(4);
+        
+        put_symbol(3, properties->id, 0, level, cx-1);
+        
+        *token = get_token(ifp, properties);
+        if(*token != semicolonsym) error(5);
+        
+        *token = get_token(ifp, properties);
+        
+        block(ifp, properties, token);
+        
+        if(*token != semicolonsym) error(5);
+        *token = get_token(ifp, properties);
+        level--;
     }
 }
 
@@ -183,9 +168,8 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
 
         *token = get_token(ifp, properties);
         expression(ifp, properties, token);
-        if(level > symbol_table[index].level)
-            emit(STO, level-symbol_table[index].level, symbol_table[index].modifier);
-        else emit(STO, 0, symbol_table[index].modifier);
+        printf("VAR LEVEL: %d VAR NAME %s\n",symbol_table[index].level, properties->id );
+        emit(STO, level-symbol_table[index].level, symbol_table[index].modifier);
         if(level > 0) instr_gen++;
     }
     else if(*token == callsym){
@@ -219,7 +203,6 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
             instr_gen++;
             proc_dec = 0;
             delete_vars(level);
-            
         }
 
         *token = get_token(ifp, properties);
@@ -295,10 +278,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         index = getsymbol(properties->id);
         if(index == -1) error(11);
         if(symbol_table[index].kind == 2){
-            if( level > symbol_table[index].level )
-                emit(LOD, level - symbol_table[index].level, symbol_table[index].modifier);
-            else
-                emit(LOD, 0, symbol_table[index].modifier);
+            emit(LOD, level - symbol_table[index].level, symbol_table[index].modifier);
             if(level > 0) instr_gen++;
         }
 
