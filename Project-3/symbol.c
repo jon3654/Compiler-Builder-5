@@ -68,13 +68,20 @@ void print_array(){
 
 
 void delete_vars(int level){
-    int i;
+    int i, j;
     for(i = 0; i < MAX_SYMBOL_TABLE_SIZE; i++)
     {
-        if(symbol_table[i].level == level && (symbol_table[i].kind == 1 || symbol_table[i].kind == 0)){
+        if(symbol_table[i].level == level && (symbol_table[i].kind == 2 || symbol_table[i].kind == 0)){
             strcpy(symbol_table[i].name, "0");
             symbol_table[i].kind = 0;
             symbol_table[i].level = 0;
+            for(j = i; j < MAX_SYMBOL_TABLE_SIZE; j++){
+                symbol_table[i] = symbol_table[i+1];
+            }
+            strcpy(symbol_table[i+1].name, "0");
+            symbol_table[i+1].kind = 0;
+            symbol_table[i+1].level = 0;
         }
     }
+
 }

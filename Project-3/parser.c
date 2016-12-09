@@ -239,11 +239,11 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         while(*token == elsesym) statement(ifp, properties, token);
         if (*token != endsym) error(17); // Semicolon or } expected
         if(level > 0 && *token == endsym){
-            level--;
             emit(OPR, 0, 0);    // emits machine code for return at the end of procedure
             instr_gen++;
             proc_dec = 0;
             delete_vars(level);
+            level--;
         }
 
         *token = get_token(ifp, properties);
