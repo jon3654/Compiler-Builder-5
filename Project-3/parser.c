@@ -17,7 +17,6 @@ int nest_proc = 0;
 int do_emit = 0;
 int tmp_c = 0;
 int tmp_c1 = 0;
-int proc_dec = 0;
 int numvars = 0;
 
 
@@ -59,6 +58,7 @@ void program(FILE* ifp, tok_prop *properties){
 }
 
 void block(FILE* ifp, tok_prop *properties, token_type *token){
+    int is_var = 0;
     if(*token == constsym){
        do{
             *token = get_token(ifp, properties);
@@ -82,6 +82,7 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
             *token = get_token(ifp, properties);
     }
     if(*token == varsym){
+        is_var = 1;
         var_proc(ifp, properties, token);
            // if(level == 0){
             //swap++;
@@ -89,12 +90,15 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
     }
     
     if(*token == procsym){
-        emit(INC, 0, 4);
-        instr_gen++;
         procedure(ifp, properties, token);
-        emit(INC, 0, 4 + numvars);
     }
-
+    if(is_var == 1){
+        emit(INC, 0, 4 + numvars);
+        if(level > 0)
+            instr_gen++;
+        is_var = 0;
+    }
+    
     if(do_emit == 1 && nest_proc == 0)
     {
         code[tmp_c].m = instr_gen;
@@ -114,7 +118,6 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
 void procedure(FILE* ifp, tok_prop *properties, token_type *token){
     while(*token == procsym){
         level++;
-        proc_dec = 1;
         // if more than one proc exist, multiple jump calls need to be made
         if(level > 0 && proc_exists == 1){
             tmp_c = cx;
@@ -122,6 +125,9 @@ void procedure(FILE* ifp, tok_prop *properties, token_type *token){
             instr_gen++;
             do_emit = 1;    // if emit is to be done, flags true
         }
+        emit(INC, 0, 4);
+        instr_gen++;
+        
         proc_exists = 1;
         
         if(level > 1) nest_proc = 1;
@@ -140,6 +146,10 @@ void procedure(FILE* ifp, tok_prop *properties, token_type *token){
         
         if(*token != semicolonsym) error(5);
         *token = get_token(ifp, properties);
+        
+        emit(OPR, 0, 0);    // emits machine code for return at the end of procedure
+        instr_gen++;
+        level--;
     }
 }
 
@@ -156,7 +166,7 @@ void if_proc(FILE* ifp, tok_prop *properties, token_type *token){
     emit(JPC, 0, 0);
     if(level > 0) instr_gen++;
     statement(ifp, properties, token);
-    code[ctemp].m = cx; // Change JPC 0 0 to JPC 0 cx-1
+    code[ctemp].m = cx; // Change JPC 0 0 to JPC 0 cx
     if(*token == elsesym)
     {
         *token=get_token(ifp, properties);
@@ -188,14 +198,12 @@ void var_proc(FILE* ifp, tok_prop *properties, token_type *token){
     
     *token = get_token(ifp, properties);
     //emit(INC, 0, 4+numvars);
-    if(level > 0) instr_gen++;
 }
 
 
 void statement(FILE* ifp, tok_prop *properties, token_type *token){
     int index = 0; // keeps track of where in the symbol_table array a symbol is
     int ctemp; // Temporary counter for if
-    int ctemp2; // Temporary counter for else
     int cx1; // First temporary counter for while
     int cx2; // Second temporary counter for while
 
@@ -239,11 +247,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         while(*token == elsesym) statement(ifp, properties, token);
         if (*token != endsym) error(17); // Semicolon or } expected
         if(level > 0 && *token == endsym){
-            emit(OPR, 0, 0);    // emits machine code for return at the end of procedure
-            instr_gen++;
-            proc_dec = 0;
-            delete_vars(level);
-            level--;
+            delete_vars(level+1);
         }
 
         *token = get_token(ifp, properties);
@@ -268,7 +272,7 @@ void statement(FILE* ifp, tok_prop *properties, token_type *token){
         statement(ifp, properties, token);
         emit(JMP, 0, cx1);
         if(level > 0) instr_gen++;
-        code[cx2].m=cx+1; // JPC 0 0 to JPC 0 cx+1
+        code[cx2].m=cx; // JPC 0 0 to JPC 0 cx+1
     }
 
     else if(*token == readsym){
