@@ -68,8 +68,8 @@ void print_array(){
 
 
 void delete_vars(int level){
-
-    for(int i = 0; i < MAX_SYMBOL_TABLE_SIZE; i++)
+    int i;
+    for(i = 0; i < MAX_SYMBOL_TABLE_SIZE; i++)
     {
         if(symbol_table[i].level == level && (symbol_table[i].kind == 1 || symbol_table[i].kind == 0)){
             strcpy(symbol_table[i].name, "0");
