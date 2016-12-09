@@ -27,28 +27,21 @@ void generate(FILE* ofp){
 // places INC instruction at end of procedure code if procedures are found in the program
 void place_inc(int swap, int gen){
     pm0 temp;
-    int temp_cx;
-    int i, j, n = 0;
+    int i, j;
     for(j = 0; j < swap; j++){
         for(i = 1; i < gen; i++){
             temp = code[i];
             code[i] = code[i+1];
             code[i+1] = temp;
-            if(code[i].op == JMP || code[i].op == JPC){
-                temp_cx = i;
+            if(code[i].op == CAL || code[i].op == JPC){
                 code[i].m--;
-            }
-            else if(code[i].op == OPR && code[i].m == 0){
-                n++;
             }
         }
     }
-    code[temp_cx].m = code[temp_cx].m - n;
 }
 
 // decrements modifier on JMP JPC and CAL if no procedures are in the program
-void dec_m(){
-    int i = 0;
+void dec_m(int i){
     while(code[i].op != 0){
         if(code[i].op == JMP || code[i].op == CAL || code[i].op == JPC){
             code[i].m--;
@@ -66,7 +59,7 @@ void no_proc(){
         code[i] = code[i+1];
     }
     cx--;
-    dec_m();
+    dec_m(0);
 }
 
 void place_jmp()
@@ -91,15 +84,6 @@ void place_jmp()
         k++;
         }
     }
-}
-
-void rm_jmp(int i){
-    int j;
-    for(j = i; j < cx; j++){
-        code[j] = code[j+1];
-    }
-    cx--;
-    dec_m();
 }
 
 void swap_jmp(int num){

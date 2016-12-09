@@ -18,6 +18,9 @@ int do_emit = 0;
 int tmp_c = 0;
 int tmp_c1 = 0;
 int proc_dec = 0;
+int numvars = 0;
+
+
 
 // main parser functions
 
@@ -44,11 +47,11 @@ void program(FILE* ifp, tok_prop *properties){
 
     // else
     else{
-        place_inc(swap, instr_gen);
+        //place_inc(swap, instr_gen);
         code[ctemp1].m = instr_gen;
-        if(nest_proc == 1){
-            place_jmp();
-        }
+        //if(nest_proc == 1){
+          //  place_jmp();
+        //}
     }
 
 
@@ -80,15 +83,17 @@ void block(FILE* ifp, tok_prop *properties, token_type *token){
     }
     if(*token == varsym){
         var_proc(ifp, properties, token);
-        
-        if(level > 0) instr_gen++;
-        if(level == 0){
-            swap++;
-        }
+           // if(level == 0){
+            //swap++;
+        //}
     }
     
-    if(*token == procsym)
+    if(*token == procsym){
+        emit(INC, 0, 4);
+        instr_gen++;
         procedure(ifp, properties, token);
+        emit(INC, 0, 4 + numvars);
+    }
 
     if(do_emit == 1 && nest_proc == 0)
     {
@@ -168,7 +173,7 @@ void if_proc(FILE* ifp, tok_prop *properties, token_type *token){
 }
 
 void var_proc(FILE* ifp, tok_prop *properties, token_type *token){
-    int numvars = 0;
+    numvars = 0;
     do{
         *token = get_token(ifp, properties);
         if(*token != identsym) error(4);
@@ -182,7 +187,8 @@ void var_proc(FILE* ifp, tok_prop *properties, token_type *token){
     if(*token != semicolonsym) error(5);
     
     *token = get_token(ifp, properties);
-    emit(INC, 0, 4+numvars);
+    //emit(INC, 0, 4+numvars);
+    if(level > 0) instr_gen++;
 }
 
 
